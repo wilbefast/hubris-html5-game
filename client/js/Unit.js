@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Unit.STARVE_SPEED = 0.003;
 Unit.EAT_SPEED = 0.9;
-Unit.EAT_THRESHOLD = 0.5;
+Unit.EAT_THRESHOLD = 0.2;
 
 /// INSTANCE ATTRIBUTES/METHODS
 function Unit(pos, radius)
@@ -101,8 +101,14 @@ function Unit(pos, radius)
     o.energy.withdraw(delta_t * typ.STARVE_SPEED);
     
     // refill energy
-    if(o.energy.getBalance() < typ.EAT_THRESHOLD && o.tile)
+    if(((o.dir.x == 0 && o.dir.y == 0) || o.energy.getBalance() < typ.EAT_THRESHOLD) 
+      && o.tile)
     {
+      // stop moving
+      o.dest.setV2(pos);
+      o.dir.setXY(0, 0);
+      
+      
       var could_eat = delta_t * typ.EAT_SPEED,
           can_eat = o.tile.energy.withdraw(could_eat);
       o.energy.deposit(can_eat);
@@ -124,8 +130,9 @@ function Unit(pos, radius)
     context.strokeStyle = 'rgb(0,0,0)';
     context.strokeCircle(o.pos.x, o.pos.y, o.radius);
     
+    context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius, 10);
     context.fillStyle = 'rgb(0,200,200)';
-    context.fillRect(o.pos.x - o.hradius, o.pos.y + o.hradius, o.radius * o.energy.getBalance(), 10);
+    context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius * o.energy.getBalance(), 10);
     
     if(o.dir.x != 0 || o.dir.y != 0)
       context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
