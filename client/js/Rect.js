@@ -22,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /// INSTANCE ATTRIBUTES/METHODS
-function T()
+function Rect(x, y, w, h)
 {
   /* RECEIVER */
-  var o = this, typ = T;
+  var o = this, typ = Rect;
   
   /* PRIVATE ATTRIBUTES 
     var a = x; 
@@ -34,6 +34,10 @@ function T()
   /* PUBLIC ATTRIBUTES 
     o.b = y; 
   */
+  o.x = (x || 0);
+  o.y = (y || 0);
+  o.w = (w || 0);
+  o.h = (h || 0);
   
   
   /* PRIVATE METHODS 

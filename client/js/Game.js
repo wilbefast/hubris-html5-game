@@ -30,25 +30,62 @@ Game.MAX_FPS = 60;
 /// INSTANCE ATTRIBUTES/METHODS
 function Game()
 {
-  /* ATTRIBUTES 
+  /* RECEIVER */
+  var o = this, typ = Game;
+  
+  /* PRIVATE ATTRIBUTES 
     var a = x; 
   */
   
-  // receiver 
-  var obj = this, typ = Game;
-  
-  // true attributes
-  
-
-  /* METHODS 
-    (obj.f = function(p1, ... ) { }
+  /* PUBLIC ATTRIBUTES 
+    o.b = y; 
   */
-
-  obj.injectUpdate = function(delta_t)
+  o.units = [];
+  o.units.push(new Unit(new V2(150, 350)));
+  o.units.push(new Unit(new V2(250, 250)));
+  o.units.push(new Unit(new V2(350, 150)));
+    
+  /* PRIVATE METHODS */
+  
+  var treatEvent = function(event)
   {
+    switch(event.type)
+    {
+      case "mouseup":
+        break;
+        
+      case "mousedown":
+        getObjectAt(mouse.pos, o.units);
+        break;
+        
+      case "keyup":
+        break;
+        
+      case "keydown":
+        break;
+    }
+  }
+  
+  /* PUBLIC METHODS 
+  (o.f = function(p1, ... ) { }
+  */
+  o.injectUpdate = function(delta_t)
+  {
+    // update objects
+    updateObjects(o.units, delta_t);
+    
+    // select units
+    var event = poll_input_event();
+    if(event)
+    do
+    {
+      treatEvent(event);
+    }
+    while(event = poll_input_event());
+    
   }
  
-  obj.injectDraw = function()
+  o.injectDraw = function()
   {
     if(!canvas.focus)
       return;
@@ -56,10 +93,14 @@ function Game()
     // clear canvas
     context.fillStyle = "rgb(200, 200, 200)";
     context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // draw units
+    drawObjects(o.units);
+
   }
 
   /* INITIALISE AND RETURN INSTANCE */
-  return obj;
+  return o;
 }
 
 Game.INSTANCE = new Game();

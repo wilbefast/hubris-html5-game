@@ -61,3 +61,12 @@ function format_time(t)
     if(seconds < 10) seconds = '0' + seconds;
   return "" + minutes + ':' +  seconds;
 }
+
+if (!Array.prototype.forEach) 
+{
+  Array.prototype.forEach = function(f, scope) 
+  {
+    for(var i = 0, len = this.length; i < len; ++i) 
+      f.call(scope, this[i], i, this);
+  }
+}

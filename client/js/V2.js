@@ -54,12 +54,14 @@ function V2(init_x, init_y)
   {
     obj.x = x;
     obj.y = y;
+    return obj;
   }
   
   obj.setV2 = function(v)
   {
     obj.x = v.x;
     obj.y = v.y;
+    return obj;
   }
   
   obj.setFromTo = function(v, w)
@@ -86,6 +88,7 @@ function V2(init_x, init_y)
       obj.x *= new_norm;
       obj.y *= new_norm;
     }
+    return obj;
   }
   
   // modification
@@ -93,41 +96,48 @@ function V2(init_x, init_y)
   {
     obj.x = obj.y;
     obj.y = -obj.x;
+    return obj;
   }
   
   obj.ninety_right = function()
   {
     obj.x = -obj.y;
     obj.y = obj.x;
+    return obj;
   }
   
   obj.addXY = function(x, y)
   {
     obj.x += x;
     obj.y += y;
+    return obj;
   }
   
   obj.addV2 = function(v)
   {
     x += v.x;
     y += v.y;
+    return obj;
   }
   
   obj.subV2 = function(v)
   {
     obj.x -= v.x;
     obj.y -= v.y;
+    return obj;
   } 
   
   obj.scale = function(amount)
   {
     obj.x *= amount;
     obj.y *= amount;
+    return obj;
   }
   
   obj.addNorm = function(amount)
   {
     obj.setNorm(norm + amount);
+    return obj;
   }
   
   obj.normalise = function()
@@ -147,6 +157,7 @@ function V2(init_x, init_y)
         sin_theta = Math.sin(theta);
     obj.x = x*cos_theta - y*sin_theta;
     obj.y = x*sin_theta + y*cos_theta;
+    return obj;
   }
   
   // mathematics
@@ -167,6 +178,15 @@ function V2(init_x, init_y)
         
     return dx*dx + dy*dy;
   }
+  
+  obj.dist = function(v)
+  {
+    var dx = v.x - obj.x, 
+        dy = v.y - obj.y;
+        
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  
   obj.coline = function(v)
   {
     // cosine of 0 is 1, so v1 and v2 are colinear if v1.v2 = 1*|v1|*|v2|

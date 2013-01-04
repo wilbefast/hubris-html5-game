@@ -22,6 +22,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* INPUT STATE */
 
+var input_events = [];
+function poll_input_event()
+{
+  if(input_events.length != 0)
+  {
+    var result = input_events[0];
+    input_events.shift();
+    return result;
+  }
+  else
+    return null;
+}
+
 var mouse =
 {
   /* constants */
@@ -75,23 +88,23 @@ var keyboard =
     switch(key)
     {	  
       case this.LEFT: 	case this.A: 	case this.Q:	
-	this.left = state; 	
-	break;
+        this.left = state; 	
+      break;
       case this.RIGHT: 	case this.D: 	case this.E: 	
-	this.right = state; 
-	break;
+        this.right = state; 
+      break;
       case this.UP: 	case this.W: 	case this.Z:	case this.COMMA:		
-	this.up = state; 	
-	break;
+        this.up = state; 	
+      break;
       case this.DOWN:	case this.S:	case this.O: 		
-	this.down = state; 	
-	break;
+        this.down = state; 	
+      break;
       case this.SPACE:		
-	this.space = state; 
-	break;
+        this.space = state; 
+      break;
       case this.ENTER:
-	this.enter = state;
-	break;
+        this.enter = state;
+      break;
     }
     
     // reset the direction based on input
@@ -99,8 +112,6 @@ var keyboard =
         : ((!this.left && this.right) ? 1 : 0);
     this.direction.y = (this.up && !this.down) ? -1 
 			  : ((!this.up && this.down) ? 1 : 0);
-			  
-    console.log(this.direction);
   }
 }
 
@@ -117,6 +128,8 @@ canvas.onmousedown = function(event)
   // reset button state
   mouse.prev[event.which] = mouse.held[event.which];
   mouse.held[event.which] = true;
+  // save event
+  input_events.push(event);
   // don't act on elements below
   event.stopPropagation();
   // don't select text
@@ -131,6 +144,8 @@ canvas.onmouseup = function(event)
   // reset button state
   mouse.prev[event.which] = mouse.held[event.which];
   mouse.held[event.which] = false;
+  // save event
+  input_events.push(event);
   // don't act on elements below
   event.stopPropagation();
   // don't select text
@@ -164,6 +179,8 @@ canvas.addEventListener("mousewheel", mousewheel, false);
 window.onkeydown = function(event) 
 { 
   keyboard.set_state(event.keyCode, true);
+  // save event
+  input_events.push(event);
   // don't act on elements below
   event.stopPropagation();
 }
@@ -171,6 +188,8 @@ window.onkeydown = function(event)
 window.onkeyup = function(event)
 { 
   keyboard.set_state(event.keyCode, false);
+  // save event
+  input_events.push(event);
   // don't act on elements below
   event.stopPropagation();
   // send to game

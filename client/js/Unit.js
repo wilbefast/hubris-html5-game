@@ -17,3 +17,54 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/// INSTANCE ATTRIBUTES/METHODS
+function Unit(pos)
+{
+  /* RECEIVER */
+  var o = this, typ = Unit;
+  
+  /* PRIVATE ATTRIBUTES 
+    var a = x; 
+  */
+  
+  /* PUBLIC ATTRIBUTES
+    o.b = y;
+  */
+  o.pos = new V2().setV2(pos);
+  o.selected = false;
+  
+  /* PRIVATE METHODS 
+  var f = function(p1, ... ) { } 
+  */
+    
+  /* PUBLIC METHODS 
+  (obj.f = function(p1, ... ) { }
+  */
+  
+  o.update = function(delta_t)
+  {
+    o.pos.x += (Math.random() - Math.random())*delta_t;
+    o.pos.y += (Math.random() - Math.random())*delta_t;
+  }
+  
+  o.draw = function()
+  {
+    context.fillStyle = 'rgb(0,0,0)';
+    if(o.selected)
+      context.fillRect(o.pos.x - 8, o.pos.y - 8, 16, 16);
+    else
+      context.strokeRect(o.pos.x - 8, o.pos.y - 8, 16, 16);
+  }
+  
+  o.collidesPoint = function(pos)
+  {
+    if(o.pos.dist2(pos) < 500)
+      o.selected = !o.selected;
+    else
+      console.log(o.pos.dist2(pos));
+  }
+  
+  /* INITIALISE AND RETURN INSTANCE */
+  return o;
+}
