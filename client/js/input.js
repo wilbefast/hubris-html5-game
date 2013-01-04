@@ -122,16 +122,21 @@ canvas.onselect = function () { return false; }		// don't select text
 
 canvas.onmousedown = function(event)
 {
+  // regain focus
+  canvas.focus = true;
+  
   // reset position
-  //--mouse.pos.setXY(event.pageX - canvas.offset.x, event.pageY - canvas.offset.y);
   mouse.pos.setXY(event.offsetX, event.offsetY);
   // reset button state
   mouse.prev[event.which] = mouse.held[event.which];
   mouse.held[event.which] = true;
+  
   // save event
   input_events.push(event);
+  
   // don't act on elements below
   event.stopPropagation();
+  
   // don't select text
   return false;	
 }

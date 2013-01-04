@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Unit.STARVE_SPEED = 0.003;
 Unit.EAT_SPEED = 0.01;
-Unit.EAT_THRESHOLD = 0.2;
+Unit.EAT_THRESHOLD = 0.5;
 
 /// INSTANCE ATTRIBUTES/METHODS
 function Unit(pos, radius)
@@ -103,11 +103,11 @@ function Unit(pos, radius)
     o.state = wander;
   }
   
-  var start_goto = function()
+  var start_goto = function(dest)
   {
-    if(o.pos.dist2(o.dest) > o.radius2)
+    if(o.pos.dist2(dest) > o.radius2)
     {
-      o.dest.setV2(o.dest);
+      o.dest.setV2(dest);
       bound(o.dest);
       o.dir.setFromTo(o.pos, o.dest).normalise();
       o.state = goto;
@@ -168,7 +168,7 @@ function Unit(pos, radius)
     if(o.pos.dist2(o.dest) < 1)
       start_idle();
     else
-      o.pos.addXY(o.dir.x * 0.01 * delta_t, o.dir.y * 0.01 * delta_t);
+      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
   }
   
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
@@ -190,6 +190,9 @@ function Unit(pos, radius)
     
     // ARTIFICIAL INTELLIGENCE -- do whatever the state requires
     o.state(delta_t);
+    
+    // die if energy is empty
+    return o.energy.isEmpty();
   }
   
   o.draw = function()
@@ -208,8 +211,6 @@ function Unit(pos, radius)
     
     if(o.dir.x != 0 || o.dir.y != 0)
       context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
-    
-    context.strokeText(o.state, o.pos.x, o.pos.y);
   }
   
   o.collidesPoint = function(p)

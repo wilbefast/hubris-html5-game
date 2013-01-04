@@ -93,6 +93,9 @@ function Game()
   */
   o.injectUpdate = function(delta_t)
   { 
+    if(!canvas.focus)
+      return;
+    
     // update objects
     updateObjects(o.units, delta_t, null, o.grid);
     

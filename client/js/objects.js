@@ -41,7 +41,11 @@ function generateObjectCollisions(obj_array1, obj_array2)
 function drawObjects(obj_array)
 {
   for(var i = 0; i < obj_array.length; i++)
-    obj_array[i].draw();
+  {
+    var obj = obj_array[i];
+    if(obj != null)
+      obj.draw();
+  }
 }
 
 // update dynamic objects (a variable number stored in an array)
@@ -60,6 +64,7 @@ function updateObjects(obj_array, delta_t, tween_functions, scenegraph)
       obj_array[i] = null;
       // add to cleanup list ;)
       cleanUp.push(i);
+      continue;
     }
     
     // perform each "tween" function on each pair of objects
