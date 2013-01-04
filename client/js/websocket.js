@@ -24,26 +24,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 function onOpen(event)
 {
-  console.log("CONNECTED");
-  
-  console.log("SENT: bink"); 
-  websocket.send("bink");
+  console.log((new Date()) + ' connected to server.');
 }
 
 function onClose(event)
 {
-  console.log("DISCONNECTED");
+  console.log((new Date()) + ' connection closed.');
 }
 
 function onMessage(message)
 {
-  console.log("RECEIVED: " + message.data);
-  websocket.close();
+  console.log((new Date()) + ' received message: ' + message.data);
+  
+  // parse message to object
+  try 
+  {
+    var json = JSON.parse(message.data);
+  } 
+  catch (e) 
+  {
+    console.log((new Date()) + ' message is not JSON:', message.data);
+    return;
+  }
+  
+  // deal with message
+  switch(json.type)
+  {
+    case 'colour':
+      local_player.colour = json.data;
+      break;
+  }
 }
 
 function onError(error)
 {
-  console.log("ERROR: " + error.data);
+  console.log((new Date()) + ' error: ' + error.data);
 }
 
 var websocket = new WebSocket(SERVER_URL);

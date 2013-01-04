@@ -30,11 +30,7 @@ function Game()
 {
   /* RECEIVER */
   var o = this, typ = Game;
-  
-  /* PRIVATE ATTRIBUTES 
-    var a = x; 
-  */
-  
+
   /* PUBLIC ATTRIBUTES 
     o.b = y; 
   */

@@ -199,18 +199,25 @@ function Unit(pos, radius)
   
   o.draw = function()
   {
-    context.fillStyle = 'rgb(255,255,255)';
+    // draw body and full part of energy bar
+    context.fillStyle = local_player.colour;
     context.fillCircle(o.pos.x, o.pos.y, o.radius);
+    context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius * o.energy.getBalance(), 10);
+    
+    // draw empty part of energy bar
+    context.fillStyle = 'white';
     context.fillRect(o.pos.x - o.hradius + o.radius * o.energy.getBalance(), 
                        o.pos.y + o.radius, o.radius * (1 - o.energy.getBalance()), 10);
     
-    context.strokeStyle = 'rgb(0,0,0)';
+    // draw body outline
+    context.strokeStyle = 'white';
     context.strokeCircle(o.pos.x, o.pos.y, o.radius);
     
+    // draw energy bar outline
+    context.fillStyle = 'black';
     context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius, 10);
-    context.fillStyle = 'rgb(0,200,200)';
-    context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius * o.energy.getBalance(), 10);
     
+    // draw direction
     if(o.dir.x != 0 || o.dir.y != 0)
       context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
   }
