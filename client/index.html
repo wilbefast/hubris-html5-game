@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="author" content="William Dyce">
+    <link rel="stylesheet" type="text/css" href="games.css" />
+    <link rel="shortcut icon" href="favicon.gif" />
+    <title>Game</title>
+  </head>
+
+  <!-- scripts will use the canvas, so declare it before including them -->
+  <body>
+    
+  <span id="canvas_box">
+    <h1>Game</h1>
+      <canvas width="640" height="480" id='game_canvas' 
+	      oncontextmenu="return false;">
+	<!-- <img src=../img/preview.png /> -->
+	<p>Can't load HTML 5 canvas: is your browser up to date?</p>
+      </canvas>
+  </span>
+
+  </body>
+
+  <!-- definition may vary depending on where your game is hosted -->
+  <script type="text/javascript">
+    var DATA_LOCATION = "data/",
+        SERVER_URL = "ws://127.0.0.1:1337",
+        canvas = document.getElementById('game_canvas'),
+        context = canvas.getContext('2d');
+  </script>
+
+  <!-- include your scripts in the order they will be executed -->
+
+  <!-- declare utility classes -->
+  <script type="text/javascript" src="js/V2.js"></script>
+  <script type="text/javascript" src="js/Bank.js"></script>
+  <script type="text/javascript" src="js/Timer.js"></script>
+
+  <!-- declare functions -->
+  <script type="text/javascript" src="js/canvas.js"></script>
+  <script type="text/javascript" src="js/utility.js"></script>
+  <script type="text/javascript" src="js/loading.js"></script>
+  <script type="text/javascript" src="js/input.js"></script>
+
+  <!-- declare game-object classes -->
+  <script type="text/javascript" src="js/Game.js"></script>
+  
+  <!-- open websocket -->
+  <script type="text/javascript" src="js/websocket.js"></script>
+
+  <!-- launch the game -->
+  <script type="text/javascript" src="js/main.js"></script>
+
+</html>

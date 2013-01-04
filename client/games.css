@@ -1,0 +1,40 @@
+body
+{
+  color:rgb(221,221,221);
+  background-color:rgb(29,29,29);
+  margin:1%;
+  padding:0%;
+  text-align:center;
+  font-size:140%;
+}
+
+h1
+{
+  font-size:200%;
+  margin:0.5%;
+  padding:0%;
+}
+
+a 
+{
+  color:rgb(228,116,29);
+  text-decoration: none;
+}
+
+canvas
+{
+  outline:0;
+  border:3px solid rgb(221,221,221); 
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.game
+{ 
+  cursor: none;
+}
+
+.game:active 
+{ 
+  cursor: none;
+}
