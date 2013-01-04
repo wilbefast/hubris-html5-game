@@ -76,6 +76,7 @@ function V2(init_x, init_y)
       obj.x = w.x - v.x;
       obj.y = w.y - v.y;
     }
+    return obj;
   }
   
   obj.setNorm = function(new_norm)
@@ -115,8 +116,8 @@ function V2(init_x, init_y)
   
   obj.addV2 = function(v)
   {
-    x += v.x;
-    y += v.y;
+    obj.x += v.x;
+    obj.y += v.y;
     return obj;
   }
   
@@ -148,7 +149,7 @@ function V2(init_x, init_y)
     obj.x *= norm_inv;
     obj.y *= norm_inv;
     
-    return old_norm;
+    return norm;
   }
   
   obj.addAngle = function(theta)

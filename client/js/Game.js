@@ -41,9 +41,11 @@ function Game()
     o.b = y; 
   */
   o.units = [];
-  o.units.push(new Unit(new V2(150, 350)));
-  o.units.push(new Unit(new V2(250, 250)));
-  o.units.push(new Unit(new V2(350, 150)));
+  o.units.push(new Unit(new V2(150, 350), 16));
+  o.units.push(new Unit(new V2(250, 250), 16));
+  o.units.push(new Unit(new V2(350, 150), 16));
+  
+  o.selected = null;
     
   /* PRIVATE METHODS */
   
@@ -51,18 +53,38 @@ function Game()
   {
     switch(event.type)
     {
-      case "mouseup":
-        break;
-        
       case "mousedown":
-        getObjectAt(mouse.pos, o.units);
+        switch(event.button)
+        {
+          case 0:
+            o.selected = getObjectAt(mouse.pos, o.units);
+            break;
+          case 1:
+            break;
+        }
         break;
         
-      case "keyup":
+      case "mouseup":
+        switch(event.button)
+        {
+          case 0:
+            if(o.selected)
+            {
+              o.selected.setDestination(mouse.pos);
+              o.selected = null;
+            }
+            break;
+          case 1:
+            break;
+        }
         break;
         
       case "keydown":
         break;
+        
+      case "keyup":
+        break;
+
     }
   }
   
@@ -96,6 +118,9 @@ function Game()
     
     // draw units
     drawObjects(o.units);
+    
+    // draw a previous of the command
+    
 
   }
 

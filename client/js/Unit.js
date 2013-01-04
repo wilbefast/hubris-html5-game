@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Unit(pos)
+function Unit(pos, radius)
 {
   /* RECEIVER */
   var o = this, typ = Unit;
@@ -32,7 +32,12 @@ function Unit(pos)
     o.b = y;
   */
   o.pos = new V2().setV2(pos);
+  o.radius = radius;
+  o.hradius = radius / 2;
+  o.radius2 = radius * radius;
   o.selected = false;
+  o.dest = new V2().setV2(pos);
+  o.dir = new V2();
   
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
@@ -44,25 +49,43 @@ function Unit(pos)
   
   o.update = function(delta_t)
   {
-    o.pos.x += (Math.random() - Math.random())*delta_t;
-    o.pos.y += (Math.random() - Math.random())*delta_t;
+    // already arrived?
+    if(o.pos.dist2(o.dest) < 1)
+    {
+      o.dest.setV2(pos);
+      o.dir.setXY(0, 0);
+    }
+    else
+      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
   }
   
   o.draw = function()
   {
     context.fillStyle = 'rgb(0,0,0)';
     if(o.selected)
-      context.fillRect(o.pos.x - 8, o.pos.y - 8, 16, 16);
+      context.fillRect(o.pos.x - o.hradius, o.pos.y - o.hradius, o.radius, o.radius);
     else
-      context.strokeRect(o.pos.x - 8, o.pos.y - 8, 16, 16);
+      context.strokeRect(o.pos.x - o.hradius, o.pos.y - o.hradius, o.radius, o.radius);
   }
   
-  o.collidesPoint = function(pos)
+  o.collidesPoint = function(p)
   {
-    if(o.pos.dist2(pos) < 500)
-      o.selected = !o.selected;
+    if(o.pos.dist2(p) < o.radius2)
+      return true;
+  }
+  
+  o.setDestination = function(dest)
+  {
+    if(o.pos.dist2(dest) > o.radius2)
+    {
+      o.dest.setV2(dest);
+      o.dir.setFromTo(o.pos, o.dest).normalise();
+    }
     else
-      console.log(o.pos.dist2(pos));
+    {
+      o.dest.setV2(o.pos);
+      o.dir.setXY(0, 0);
+    }
   }
   
   /* INITIALISE AND RETURN INSTANCE */
