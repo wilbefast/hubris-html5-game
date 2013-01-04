@@ -34,8 +34,6 @@ function Tilegrid()
   
   o.size = new V2(canvas.width / Tile.SIZE.x, canvas.height / Tile.SIZE.y);
   
-  console.log(canvas);
-  
   o.grid = new Array(o.size.y);
   for(var row = 0; row < o.size.y; row++)
   {

@@ -31,6 +31,8 @@ function Unit(pos, radius)
   /* PUBLIC ATTRIBUTES
     o.b = y;
   */
+  
+  //! --------------------------------------------------------------------------
   o.pos = new V2().setV2(pos);
   o.radius = radius;
   o.hradius = radius / 2;
@@ -38,6 +40,9 @@ function Unit(pos, radius)
   o.selected = false;
   o.dest = new V2().setV2(pos);
   o.dir = new V2();
+  
+  //! --------------------------------------------------------------------------
+  o.energy = new Bank(0.5, 0, 1);
   
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
@@ -49,7 +54,7 @@ function Unit(pos, radius)
   
   o.update = function(delta_t)
   {
-    // already arrived?
+    // move towards destination
     if(o.pos.dist2(o.dest) < 1)
     {
       o.dest.setV2(pos);
@@ -57,6 +62,10 @@ function Unit(pos, radius)
     }
     else
       o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
+    
+    
+    // consume energy
+    o.energy.withdraw(delta_t * 0.001);
   }
   
   o.draw = function()
@@ -66,6 +75,10 @@ function Unit(pos, radius)
       context.fillRect(o.pos.x - o.hradius, o.pos.y - o.hradius, o.radius, o.radius);
     else
       context.strokeRect(o.pos.x - o.hradius, o.pos.y - o.hradius, o.radius, o.radius);
+    
+    
+    //context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius * o.energy.getBalance(), 10);
+    context.fillRect(o.pos.x - o.hradius, o.pos.y + o.hradius, o.radius * o.energy.getBalance(), 10);
   }
   
   o.collidesPoint = function(p)

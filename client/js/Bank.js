@@ -18,22 +18,35 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*** BOUNDED CLASS a numeric value with a maximum capacity to deposit/withdraw ***/
+/*** BANK CLASS a numeric value with a maximum capacity to deposit/withdraw ***/
+
+function bound(v, min, max)
+{
+  return ((v > max) ? max : ((v < min) ? min : v));
+}
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Bounded(starting_balance, max_balance, min_balance)
+function Bank(starting_balance, max_balance, min_balance)
 {
   /* ATTRIBUTES 
     var a = x; 
   */
   
   // handles to provide C-style scoping
-  var obj = this, typ = Bounded;
+  var obj = this, typ = Bank;
   
   // other attributes
-  var balance = (starting_balance == undefined ? 0.0 : starting_balance),
-      max = (max_balance == undefined ? 1.0 : max_balance),
-      min = (min_balance == undefined ? 0.0 : min_balance);
+  starting_balance = (starting_balance == undefined ? 0.0 : starting_balance);
+  max_balance = (max_balance == undefined ? 1.0 : max_balance);
+  min_balance = (min_balance == undefined ? 0.0 : min_balance);
+  
+  var min = min_balance, max = max_balance;
+  if(min > max)
+  {
+    min = max_balance;
+    max = min_balance;
+  }
+  var balance = bound(starting_balance, min, max);
   
   /* SUBROUTINES 
   var f = function(p1, ... ) { } 
