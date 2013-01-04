@@ -45,7 +45,7 @@ function drawObjects(obj_array)
 }
 
 // update dynamic objects (a variable number stored in an array)
-function updateObjects(obj_array, delta_t, tween_functions)
+function updateObjects(obj_array, delta_t, tween_functions, scenegraph)
 {
   // array of indices of objects to be deleted
   var cleanUp = new Array();
@@ -62,7 +62,7 @@ function updateObjects(obj_array, delta_t, tween_functions)
       cleanUp.push(i);
     }
     
-    // before each "tween" function on each pair of objects
+    // perform each "tween" function on each pair of objects
     if(tween_functions) for(f = 0; f < tween_functions.length; f++)
     {
       // for instance, generate collision events between objects if requested
@@ -73,6 +73,10 @@ function updateObjects(obj_array, delta_t, tween_functions)
           tween_functions[f](a, b);
       }
     }
+    
+    // allocate positions in the scenegraph
+    if(scenegraph)
+      a.setSceneNode(scenegraph.getSceneNode(a.pos));
   }
   // delete the indices in the cleanup list
   for(var i = 0; i < cleanUp.length; i++)

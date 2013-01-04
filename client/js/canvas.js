@@ -42,3 +42,24 @@ var element_offset = function(element)
     return undefined;
 }
 canvas.offset = element_offset(canvas);
+
+function drawCircle(x, y, radius, fill)
+{
+  context.beginPath();
+  context.arc(x, y, radius, 0 , 2 * Math.PI, false);
+  if(fill) 
+    context.fill();
+  else
+    context.stroke();
+  context.closePath(); 
+}
+context.strokeCircle = function(x, y, radius) { drawCircle(x, y, radius, false); }
+context.fillCircle = function(x, y, radius) { drawCircle(x, y, radius, true); }
+
+context.strokeLine = function(x1, y1, x2, y2)
+{
+  context.beginPath();
+  context.moveTo(x1, y1);
+  context.lineTo(x2, y2);
+  context.stroke();
+}

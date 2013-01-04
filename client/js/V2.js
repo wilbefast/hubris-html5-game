@@ -50,6 +50,14 @@ function V2(init_x, init_y)
   }
   
   // setters
+  
+  obj.randomDir = function()
+  {
+    obj.x = 1;
+    obj.y = 0;
+    obj.addAngle(Math.random() * 2 * Math.PI);
+  }
+  
   obj.setXY = function(x, y)
   {
     obj.x = x;
@@ -67,10 +75,7 @@ function V2(init_x, init_y)
   obj.setFromTo = function(v, w)
   {
     if(v.x == w.x && v.y == w.y)
-    {
-      obj.x = Math.random();
-      obj.y = Math.random();
-    }
+      obj.randomDir();
     else
     {
       obj.x = w.x - v.x;
@@ -135,6 +140,20 @@ function V2(init_x, init_y)
     return obj;
   }
   
+  obj.scaleV2 = function(v)
+  {
+    obj.x *= v.x;
+    obj.y *= v.y;
+    return obj;
+  }
+  
+  obj.inverse = function()
+  {
+    obj.x = 1/obj.x;
+    obj.y = 1/obj.y;
+    return obj;
+  }
+  
   obj.addNorm = function(amount)
   {
     obj.setNorm(norm + amount);
@@ -156,8 +175,8 @@ function V2(init_x, init_y)
   {
     var cos_theta = Math.cos(theta),
         sin_theta = Math.sin(theta);
-    obj.x = x*cos_theta - y*sin_theta;
-    obj.y = x*sin_theta + y*cos_theta;
+    obj.x = obj.x*cos_theta - obj.y*sin_theta;
+    obj.y = obj.x*sin_theta + obj.y*cos_theta;
     return obj;
   }
   

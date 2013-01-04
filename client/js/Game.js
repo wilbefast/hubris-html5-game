@@ -96,7 +96,10 @@ function Game()
   o.injectUpdate = function(delta_t)
   {
     // update objects
-    updateObjects(o.units, delta_t);
+    updateObjects(o.units, delta_t, null, o.grid);
+    
+    // update grid
+    o.grid.update(delta_t);
     
     // select units
     var event = poll_input_event();

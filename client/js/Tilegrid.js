@@ -32,7 +32,7 @@ function Tilegrid()
     o.b = y; 
   */
   
-  o.size = new V2(canvas.width / Tile.SIZE.x, canvas.height / Tile.SIZE.y);
+  o.size = new V2(canvas.width * Tile.ISIZE.x, canvas.height * Tile.ISIZE.y);
   
   o.grid = new Array(o.size.y);
   for(var row = 0; row < o.size.y; row++)
@@ -42,14 +42,17 @@ function Tilegrid()
       o.grid[row][col] = new Tile(row, col);
   }
   
-  
-  /* PRIVATE METHODS 
-  var f = function(p1, ... ) { } 
-  */
-    
   /* PUBLIC METHODS 
   (o.f = function(p1, ... ) { }
   */
+  
+  o.update = function(delta_t)
+  {
+    for(var row = 0; row < o.size.y; row++)
+    for(var col = 0; col < o.size.x; col++)
+      o.grid[row][col].update(delta_t);
+      
+  }
   
   o.draw = function()
   {
@@ -57,6 +60,11 @@ function Tilegrid()
     for(var col = 0; col < o.size.x; col++)
       o.grid[row][col].draw();
       
+  }
+  
+  o.getSceneNode = function(pos)
+  {
+    return o.grid[Math.floor(pos.y * Tile.ISIZE.y )][Math.floor(pos.x * Tile.ISIZE.x)];
   }
   
   /* INITIALISE AND RETURN INSTANCE */
