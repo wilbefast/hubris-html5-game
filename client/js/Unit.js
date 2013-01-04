@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 Unit.STARVE_SPEED = 0.003;
-Unit.EAT_SPEED = 0.9;
+Unit.EAT_SPEED = 0.01;
 Unit.EAT_THRESHOLD = 0.2;
 
 /// INSTANCE ATTRIBUTES/METHODS
@@ -81,51 +81,123 @@ function Unit(pos, radius)
     return bounded;
   }
     
+  var start_idle = function()
+  {
+    o.dest.setV2(pos);
+    o.dir.setXY(0, 0);
+    o.state = idle;
+  }
+  
+  var start_harvest = function()
+  {
+    o.dest.setV2(pos);
+    o.dir.setXY(0, 0);
+    
+    o.state = harvest;
+  }
+  
+  var start_wander = function()
+  {
+    o.dir.randomDir().normalise();
+    o.dest.setV2(o.dir).scaleV2(Tile.SIZE).addV2(o.pos);
+    o.state = wander;
+  }
+  
+  var start_goto = function()
+  {
+    if(o.pos.dist2(o.dest) > o.radius2)
+    {
+      o.dest.setV2(o.dest);
+      bound(o.dest);
+      o.dir.setFromTo(o.pos, o.dest).normalise();
+      o.state = goto;
+    }
+    else
+      start_idle();
+  }
+  
+  var idle = function(delta_t)
+  {
+    // IDLE
+    
+    // hungry while waiting
+    if(o.energy.getBalance() < typ.EAT_THRESHOLD)
+      start_harvest();
+  }
+ 
+  var harvest = function(delta_t)
+  {
+    //HARVEST
+    
+    // if no longer hungry, stop eating
+    if(o.energy.isFull())
+      start_idle();
+    
+    // keep eating until full
+    else
+    {
+      // try to eat something
+      var could_eat = delta_t * typ.EAT_SPEED,
+          can_eat = o.tile.energy.withdraw(could_eat);
+      o.energy.deposit(can_eat);
+      
+      // search for more food if none is around
+      if(o.energy.isFull())
+        start_idle();
+      else if(can_eat < could_eat)
+        start_wander();
+    }
+  }
+ 
+  var wander = function(delta_t)
+  {
+    // WANDER
+    
+    // search out something to eat
+    if(o.pos.dist2(o.dest) > 1)
+      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
+    
+    // start eating again at destination
+    else
+      start_harvest();
+  }
+  
+  var goto = function(delta_t)
+  {
+    // GOTO
+    if(o.pos.dist2(o.dest) < 1)
+      start_idle();
+    else
+      o.pos.addXY(o.dir.x * 0.01 * delta_t, o.dir.y * 0.01 * delta_t);
+  }
+  
+  //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
+  o.state = wander;
+    
+    
   /* PUBLIC METHODS 
   (obj.f = function(p1, ... ) { }
   */
   
   o.update = function(delta_t)
   {
-    // check if crossing boundary or arried at destination
-    if(bound(o.pos) || o.pos.dist2(o.dest) < 1)
-    {
-      o.dest.setV2(pos);
-      o.dir.setXY(0, 0);
-    }
-    // otherwise move towards destination
-    else
-      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
-     
-    // consume energy
-    o.energy.withdraw(delta_t * typ.STARVE_SPEED);
+    // RESOURCES -- get hungry
+    o.energy.withdraw(typ.STARVE_SPEED * delta_t);
     
-    // refill energy
-    if(((o.dir.x == 0 && o.dir.y == 0) || o.energy.getBalance() < typ.EAT_THRESHOLD) 
-      && o.tile)
-    {
-      // stop moving
-      o.dest.setV2(pos);
-      o.dir.setXY(0, 0);
-      
-      
-      var could_eat = delta_t * typ.EAT_SPEED,
-          can_eat = o.tile.energy.withdraw(could_eat);
-      o.energy.deposit(can_eat);
-      
-      if(can_eat < could_eat && o.dir.x == 0 && o.dir.y == 0)
-      {
-        o.dir.randomDir();
-        o.dest.setV2(o.dir).scaleV2(Tile.SIZE).addV2(o.pos);
-      }
-    }
+    // PHYSICS -- check if crossing boundary or arried at destination
+    if(bound(o.pos))
+      start_idle();
     
+    // ARTIFICIAL INTELLIGENCE -- do whatever the state requires
+    o.state(delta_t);
   }
   
   o.draw = function()
   {
     context.fillStyle = 'rgb(255,255,255)';
     context.fillCircle(o.pos.x, o.pos.y, o.radius);
+    context.fillRect(o.pos.x - o.hradius + o.radius * o.energy.getBalance(), 
+                       o.pos.y + o.radius, o.radius * (1 - o.energy.getBalance()), 10);
     
     context.strokeStyle = 'rgb(0,0,0)';
     context.strokeCircle(o.pos.x, o.pos.y, o.radius);
@@ -136,6 +208,8 @@ function Unit(pos, radius)
     
     if(o.dir.x != 0 || o.dir.y != 0)
       context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
+    
+    context.strokeText(o.state, o.pos.x, o.pos.y);
   }
   
   o.collidesPoint = function(p)
@@ -144,19 +218,9 @@ function Unit(pos, radius)
       return true;
   }
   
-  o.setDestination = function(dest)
+  o.goto = function(dest)
   {
-    if(o.pos.dist2(dest) > o.radius2)
-    {
-      o.dest.setV2(dest);
-      bound(o.dest);
-      o.dir.setFromTo(o.pos, o.dest).normalise();
-    }
-    else
-    {
-      o.dest.setV2(o.pos);
-      o.dir.setXY(0, 0);
-    }
+    start_goto(dest);
   }
   
   o.setSceneNode = function(scenenode)

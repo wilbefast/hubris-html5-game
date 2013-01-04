@@ -53,9 +53,10 @@ function V2(init_x, init_y)
   
   obj.randomDir = function()
   {
-    obj.x = 1;
-    obj.y = 0;
-    obj.addAngle(Math.random() * 2 * Math.PI);
+    obj.x = Math.random() - Math.random();
+    obj.y = Math.random() - Math.random();
+    obj.normalise();
+    return obj;
   }
   
   obj.setXY = function(x, y)

@@ -44,9 +44,6 @@ function Game()
   o.grid = new Tilegrid(new V2(32, 32));
   
   o.units = [];
-  o.units.push(new Unit(new V2(150, 350), 16));
-  o.units.push(new Unit(new V2(250, 250), 16));
-  o.units.push(new Unit(new V2(350, 150), 16));
   o.selected = null;
     
   /* PRIVATE METHODS */
@@ -58,10 +55,11 @@ function Game()
       case "mousedown":
         switch(event.button)
         {
-          case 0:
+          case 0: // left
             o.selected = getObjectAt(mouse.pos, o.units);
             break;
-          case 1:
+          case 2: // right
+            o.units.push(new Unit(mouse.pos, 16));
             break;
         }
         break;
@@ -72,7 +70,7 @@ function Game()
           case 0:
             if(o.selected)
             {
-              o.selected.setDestination(mouse.pos);
+              o.selected.goto(mouse.pos);
               o.selected = null;
             }
             break;
@@ -109,7 +107,6 @@ function Game()
       treatEvent(event);
     }
     while(event = poll_input_event());
-    
   }
  
   o.injectDraw = function()
