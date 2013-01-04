@@ -1,7 +1,6 @@
 /** @author William J.D. **/
 
 /*
-HTML5 base code
 Copyright (C) 2013 William James Dyce
 
 This program is free software: you can redistribute it and/or modify
@@ -18,14 +17,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** TEMPLATE FOR CLASSES **/
-
 
 /// INSTANCE ATTRIBUTES/METHODS
-function T()
+function Tilegrid()
 {
   /* RECEIVER */
-  var o = this, typ = T;
+  var o = this, typ = Tilegrid;
   
   /* PRIVATE ATTRIBUTES 
     var a = x; 
@@ -35,6 +32,18 @@ function T()
     o.b = y; 
   */
   
+  o.size = new V2(canvas.width / Tile.SIZE.x, canvas.height / Tile.SIZE.y);
+  
+  console.log(canvas);
+  
+  o.grid = new Array(o.size.y);
+  for(var row = 0; row < o.size.y; row++)
+  {
+    o.grid[row] = new Array(o.size.x);
+    for(var col = 0; col < o.size.x; col++)
+      o.grid[row][col] = new Tile(row, col);
+  }
+  
   
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
@@ -43,6 +52,14 @@ function T()
   /* PUBLIC METHODS 
   (o.f = function(p1, ... ) { }
   */
+  
+  o.draw = function()
+  {
+    for(var row = 0; row < o.size.y; row++)
+    for(var col = 0; col < o.size.x; col++)
+      o.grid[row][col].draw();
+      
+  }
   
   /* INITIALISE AND RETURN INSTANCE */
   return o;

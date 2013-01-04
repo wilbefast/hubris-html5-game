@@ -40,11 +40,13 @@ function Game()
   /* PUBLIC ATTRIBUTES 
     o.b = y; 
   */
+  
+  o.grid = new Tilegrid(new V2(32, 32));
+  
   o.units = [];
   o.units.push(new Unit(new V2(150, 350), 16));
   o.units.push(new Unit(new V2(250, 250), 16));
   o.units.push(new Unit(new V2(350, 150), 16));
-  
   o.selected = null;
     
   /* PRIVATE METHODS */
@@ -115,6 +117,9 @@ function Game()
     // clear canvas
     context.fillStyle = "rgb(200, 200, 200)";
     context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // draw grid
+    o.grid.draw();
     
     // draw units
     drawObjects(o.units);

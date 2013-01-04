@@ -1,7 +1,6 @@
 /** @author William J.D. **/
 
 /*
-HTML5 base code
 Copyright (C) 2013 William James Dyce
 
 This program is free software: you can redistribute it and/or modify
@@ -18,14 +17,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** TEMPLATE FOR CLASSES **/
-
+Tile.SIZE = new V2(32, 32);
 
 /// INSTANCE ATTRIBUTES/METHODS
-function T()
+function Tile(row, col)
 {
   /* RECEIVER */
-  var o = this, typ = T;
+  var o = this, typ = Tile;
   
   /* PRIVATE ATTRIBUTES 
     var a = x; 
@@ -35,6 +33,8 @@ function T()
     o.b = y; 
   */
   
+  o.gridpos = new V2(col, row);
+  
   
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
@@ -43,6 +43,12 @@ function T()
   /* PUBLIC METHODS 
   (o.f = function(p1, ... ) { }
   */
+  
+  o.draw = function()
+  {
+    context.strokeRect(o.gridpos.x * typ.SIZE.x, o.gridpos.y * typ.SIZE.y, 
+                       typ.SIZE.x, typ.SIZE.y);
+  }
   
   /* INITIALISE AND RETURN INSTANCE */
   return o;
