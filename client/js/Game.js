@@ -38,6 +38,7 @@ function Game()
   o.grid = new Tilegrid(new V2(32, 32));
   
   o.units = [];
+  o.portals = [];
   o.selected = null;
     
   /* PRIVATE METHODS */
@@ -92,7 +93,8 @@ function Game()
     
     // update objects
     updateObjects(o.units, delta_t, [ generateCollision ], o.grid);
-    
+    updateObjects(o.portals, delta_t);
+     
     // update grid
     o.grid.update(delta_t);
     

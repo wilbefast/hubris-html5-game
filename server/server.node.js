@@ -12,14 +12,6 @@ var WebSocketServer = require('websocket').server;
 var http = require('http');
 var fs = require('fs');
 
-//! ----------------------------------------------------------------------------
-//! UTILITY FUNCTIONS
-//! ----------------------------------------------------------------------------
-
-function t_log(msg)
-{
-  console.log((new Date()) + ' ' + msg);
-}
 
 //! ----------------------------------------------------------------------------
 //! GLOBAL VARIABLES
@@ -29,6 +21,21 @@ var MAX_PLAYERS = 8;
 var players = [];
 var colours = [ 'red', 'green', 'blue', 'magenta', 'aqua', 'yellow', 'purple', 'orange' ];
 colours.sort(function(a,b) { return Math.random() > 0.5; } );
+
+//! ----------------------------------------------------------------------------
+//! UTILITY FUNCTIONS
+//! ----------------------------------------------------------------------------
+
+function t_log(msg)
+{
+  console.log((new Date()) + ' ' + msg);
+}
+
+function boardcast(msg)
+{
+  // TODO
+}
+
 
 //! ----------------------------------------------------------------------------
 //! LOAD INDEX HTML
@@ -80,13 +87,25 @@ function receiveRequest(request)
   
   //! OPEN CONNECTION TO NEW CLIENT
   var connection = request.accept(null, request.origin);
-  var playerIndex = players.push(connection) - 1;
+  var playerIndex = players.length;
   
   // give the player a colour
   var playerColour = colours.shift();
-  var packet = { type:'colour', data:playerColour };
-  connection.sendUTF(JSON.stringify(packet));
+  var packet = JSON.stringify({ type : 'colour', data : playerColour });
+  connection.sendUTF(packet);
   t_log(playerColour + ' player joined.');
+  
+  // add to the list of players
+  players.push({con : connection, col : playerColour });
+  
+  // tell the players about eachother
+  packet = JSON.stringify({ type: 'open_portal', data : playerColour });
+  for(var i = 0; i < players.length; i++) if(i != playerIndex)
+  {
+    players[i].con.sendUTF(packet);
+    connection.sendUTF(JSON.stringify({ type: 'open_portal', 
+                                        data : players[i].col }));
+  }
   
   //! RECEIVE MESSAGE
   function receiveMessage(message)
@@ -103,9 +122,15 @@ function receiveRequest(request)
   //! CLOSE CONNECTION
   function closeConnection(connection)
   {
+    // remove the leaving player from the list
     t_log(playerColour + ' player disconnected.');
     players.splice(playerIndex, 1);
     colours.push(playerColour);
+    
+    // tell inform the other players of the disconnection
+    var packet = JSON.stringify({ type: 'close_portal', data : playerColour });
+    for(var i = 0; i < players.length; i++)
+      players[i].con.sendUTF(packet);
   }
   connection.on('close', closeConnection);
 }
