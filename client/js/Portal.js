@@ -20,12 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 "use strict";
 
-// MULTIPLAYER
-var local_player =
-{
-  colour : 'white'
-};
+/** PORTAL LINKING TWO PLAYERS **/
 
-// TIMING
-var this_tick, prev_tick = this_tick = (new Date()).getTime();
-var MAX_FPS = 60;
+/// INSTANCE ATTRIBUTES/METHODS
+function Portal(pos)
+{
+  /* RECEIVER */
+  var o = this, typ = Portal;
+  
+  /* PUBLIC ATTRIBUTES 
+    o.b = y; 
+  */
+  
+  o.pos = new V2().setV2(pos);
+    
+  /* PUBLIC METHODS 
+  (o.f = function(p1, ... ) { }
+  */
+  
+  /* INITIALISE AND RETURN INSTANCE */
+  return o;
+}

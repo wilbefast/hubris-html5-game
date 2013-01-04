@@ -20,6 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 "use strict";
 
+// check for a collision
+function areColliding(a, b)
+{
+  return (a.pos.dist2(b.pos) < a.radius2 + b.radius2);
+}
+
 // generate a collision between two objects if applicable
 function generateCollision(a, b)
 {
@@ -70,7 +76,7 @@ function updateObjects(obj_array, delta_t, tween_functions, scenegraph)
     }
     
     // perform each "tween" function on each pair of objects
-    if(tween_functions) for(f = 0; f < tween_functions.length; f++)
+    if(tween_functions) for(var f = 0; f < tween_functions.length; f++)
     {
       // for instance, generate collision events between objects if requested
       for(var j = i+1; j < obj_array.length; j++)

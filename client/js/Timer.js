@@ -36,10 +36,6 @@ function Timer(starting_time, max_time, init_auto_reset)
   var time = new Bank(starting_time, max_time, -1.0),
       auto_reset = (init_auto_reset == undefined ? false : init_auto_reset);
   
-  /* SUBROUTINES 
-  var f = function(p1, ... ) { } 
-  */
-  
   /* PUBLIC METHODS 
   obj.f = function(p1, ... ) { } 
   */

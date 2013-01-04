@@ -91,7 +91,7 @@ function Game()
       return;
     
     // update objects
-    updateObjects(o.units, delta_t, null, o.grid);
+    updateObjects(o.units, delta_t, [ generateCollision ], o.grid);
     
     // update grid
     o.grid.update(delta_t);

@@ -66,12 +66,12 @@ function Bank(starting_balance, max_balance, min_balance)
   // modification
   obj.withdraw = function(amount)
   {
-    if(balance >= amount)
+    if(balance - amount >= min)
       balance -= amount;
     else
     {
       amount = balance;
-      balance = 0;
+      balance = min;
     }
     // return the amount that was withdrawn
     return amount;
@@ -104,6 +104,10 @@ function Bank(starting_balance, max_balance, min_balance)
   {
     return obj.withdraw(max);
   }
+  
+  obj.getMin = function() { return min; }
+  
+  obj.getMax = function() { return max; }
   
   /* INITIALISE AND RETURN INSTANCE */
   return obj;

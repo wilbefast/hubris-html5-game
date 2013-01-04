@@ -20,11 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 "use strict";
 
-var MAX_FPS = 60;
-
 /* LAUNCH THE APPLICATION */
 
-var this_tick, prev_tick = this_tick = (new Date()).getTime();
 function update_loop()
 {
   // deal with timing
@@ -53,6 +50,9 @@ function load_then_run()
   }
   // launch the application propre when ready
   else
+  {
+    this_tick = (new Date()).getTime();
     update_loop();
+  }
 }
 load_then_run();

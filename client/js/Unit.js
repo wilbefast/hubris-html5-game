@@ -22,7 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Unit.STARVE_SPEED = 0.003;
 Unit.EAT_SPEED = 0.01;
-Unit.EAT_THRESHOLD = 0.5;
+Unit.EAT_THRESHOLD_IDLE = 0.5;
+Unit.EAT_THRESHOLD_GOTO = 0.2;
 
 /// INSTANCE ATTRIBUTES/METHODS
 function Unit(pos, radius)
@@ -49,6 +50,9 @@ function Unit(pos, radius)
   
   //! RESOURCES ----------------------------------------------------------------
   o.energy = new Bank(0.5, 0, 1);
+  
+  //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
+  o.wander_timer = new Timer(60);
   
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
@@ -103,6 +107,7 @@ function Unit(pos, radius)
     o.dir.randomDir().normalise();
     o.dest.setV2(o.dir).scaleV2(Tile.SIZE).addV2(o.pos);
     o.state = wander;
+    o.wander_timer.reset();
   }
   
   var start_goto = function(dest)
@@ -123,7 +128,7 @@ function Unit(pos, radius)
     // IDLE
     
     // hungry while waiting
-    if(o.energy.getBalance() < typ.EAT_THRESHOLD)
+    if(o.energy.getBalance() < typ.EAT_THRESHOLD_IDLE)
       start_harvest();
   }
  
@@ -155,26 +160,47 @@ function Unit(pos, radius)
   {
     // WANDER
     
-    // search out something to eat
-    if(o.pos.dist2(o.dest) > 1)
-      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
-    
-    // start eating again at destination
-    else
+    // stop to eat when timer runs out
+    if(o.wander_timer.countdown(delta_t))
       start_harvest();
+    
+    // stop to eat if there's food to be had
+    else if(o.tile && o.tile.energy.getBalance() > typ.EAT_THRESHOLD_IDLE)
+      start_harvest();
+    
+    // search out something to eat
+    else
+      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
   }
   
   var goto = function(delta_t)
   {
     // GOTO
+    
+    // stop at destination
     if(o.pos.dist2(o.dest) < 1)
       start_idle();
+    
+    // stop if too hungry
+    else if(o.energy.getBalance() < typ.EAT_THRESHOLD_GOTO)
+      start_harvest();
+    
+    // recalculate direction if going the wrong way
+    else if(o.dir.dot(new V2().setFromTo(o.pos, o.dest)) < 0)
+      start_goto(o.dest);
+
+    // continue to destination
     else
-      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
+      o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t); 
+
   }
   
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
   o.state = wander;
+  o.wander_timer = new Timer(60, 60);
+  
+  
+  //! --------------------------------------------------------------------------
     
     
   /* PUBLIC METHODS 
@@ -209,12 +235,9 @@ function Unit(pos, radius)
     context.fillRect(o.pos.x - o.hradius + o.radius * o.energy.getBalance(), 
                        o.pos.y + o.radius, o.radius * (1 - o.energy.getBalance()), 10);
     
-    // draw body outline
-    context.strokeStyle = 'white';
+    // draw body and energy bar outline
+    context.strokeStyle = 'black';
     context.strokeCircle(o.pos.x, o.pos.y, o.radius);
-    
-    // draw energy bar outline
-    context.fillStyle = 'black';
     context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius, 10);
     
     // draw direction
@@ -236,6 +259,13 @@ function Unit(pos, radius)
   o.setSceneNode = function(scenenode)
   {
     o.tile = scenenode;
+  }
+  
+  o.collision = function(other)
+  {
+    var manifold = new V2().setFromTo(other.pos, o.pos);
+    manifold.normalise();
+    o.pos.addV2(manifold);
   }
   
   /* INITIALISE AND RETURN INSTANCE */

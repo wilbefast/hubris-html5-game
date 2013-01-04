@@ -124,6 +124,7 @@ canvas.onmousedown = function(event)
 {
   // regain focus
   canvas.focus = true;
+  this_tick = (new Date()).getTime();
   
   // reset position
   mouse.pos.setXY(event.offsetX, event.offsetY);
