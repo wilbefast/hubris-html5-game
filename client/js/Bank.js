@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+"use strict";
+
 /*** BANK CLASS a numeric value with a maximum capacity to deposit/withdraw ***/
 
 function bound(v, min, max)

@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+"use strict";
+
 Unit.STARVE_SPEED = 0.003;
 Unit.EAT_SPEED = 0.01;
 Unit.EAT_THRESHOLD = 0.5;

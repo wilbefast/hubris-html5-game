@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+"use strict";
+
 Tile.SIZE = new V2(32, 32);
 Tile.ISIZE = new V2().setV2(Tile.SIZE).inverse();
 Tile.GROW_SPEED = 0.0003;

@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+"use strict";
+
 var areColliding = function(a, b)
 {
   return (a.getPosition().dist2(b.getPosition()) 

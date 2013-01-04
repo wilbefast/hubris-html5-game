@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*** Websocket functions ***/
 
-function onOpen(evt)
+function onOpen(event)
 {
   console.log("CONNECTED");
   
@@ -30,20 +30,20 @@ function onOpen(evt)
   websocket.send("bink");
 }
 
-function onClose(evt)
+function onClose(event)
 {
   console.log("DISCONNECTED");
 }
 
-function onMessage(evt)
+function onMessage(message)
 {
-  console.log("RECEIVED: " + evt.data);
+  console.log("RECEIVED: " + message.data);
   websocket.close();
 }
 
-function onError(evt)
+function onError(error)
 {
-  console.log("ERROR: " + evt.data);
+  console.log("ERROR: " + error.data);
 }
 
 var websocket = new WebSocket(SERVER_URL);
