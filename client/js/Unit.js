@@ -18,8 +18,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-Unit.STARVE_SPEED = 0.001;
-Unit.EAT_SPEED = 0.01;
+Unit.STARVE_SPEED = 0.003;
+Unit.EAT_SPEED = 0.9;
 Unit.EAT_THRESHOLD = 0.5;
 
 /// INSTANCE ATTRIBUTES/METHODS
@@ -51,6 +51,35 @@ function Unit(pos, radius)
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
   */
+  
+  var bound = function(v)
+  {
+    var bounded = false;
+    if(v.x < o.radius) 
+    {
+      v.x = o.radius;
+      bounded = true;
+    }
+    
+    if(v.y < o.radius) 
+    {
+      v.y = o.radius;
+      bounded = true;
+    }
+    
+    if(v.x > canvas.width - o.radius) 
+    {
+      v.x = canvas.width - o.radius;
+      bounded = true;
+    }
+    
+    if(v.y > canvas.height - o.radius) 
+    {
+      v.y = canvas.height - o.radius;
+      bounded = true;
+    }
+    return bounded;
+  }
     
   /* PUBLIC METHODS 
   (obj.f = function(p1, ... ) { }
@@ -58,12 +87,13 @@ function Unit(pos, radius)
   
   o.update = function(delta_t)
   {
-    // move towards destination
-    if(o.pos.dist2(o.dest) < 1)
+    // check if crossing boundary or arried at destination
+    if(bound(o.pos) || o.pos.dist2(o.dest) < 1)
     {
       o.dest.setV2(pos);
       o.dir.setXY(0, 0);
     }
+    // otherwise move towards destination
     else
       o.pos.addXY(o.dir.x * delta_t, o.dir.y * delta_t);
      
@@ -97,8 +127,8 @@ function Unit(pos, radius)
     context.fillStyle = 'rgb(0,200,200)';
     context.fillRect(o.pos.x - o.hradius, o.pos.y + o.hradius, o.radius * o.energy.getBalance(), 10);
     
-    
-    context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
+    if(o.dir.x != 0 || o.dir.y != 0)
+      context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
   }
   
   o.collidesPoint = function(p)
@@ -112,6 +142,7 @@ function Unit(pos, radius)
     if(o.pos.dist2(dest) > o.radius2)
     {
       o.dest.setV2(dest);
+      bound(o.dest);
       o.dir.setFromTo(o.pos, o.dest).normalise();
     }
     else

@@ -94,7 +94,7 @@ function Game()
   (o.f = function(p1, ... ) { }
   */
   o.injectUpdate = function(delta_t)
-  {
+  { 
     // update objects
     updateObjects(o.units, delta_t, null, o.grid);
     
