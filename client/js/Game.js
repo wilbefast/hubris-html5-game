@@ -120,12 +120,31 @@ function Game()
     // draw grid
     o.grid.draw();
     
-    // draw units
+    // draw objects
     drawObjects(o.units);
+    drawObjects(o.portals);
     
-    // draw a previous of the command
-    
-
+    // draw a preview of the command
+    context.strokeStyle = 'black';
+    if(o.selected)
+      context.strokeLine(o.selected.pos.x, o.selected.pos.y, mouse.pos.x, mouse.pos.y);
+  }
+  
+  o.openPortal = function(colour)
+  {
+    o.portals.push(new Portal(random_position(), colour));
+  }
+  
+  o.closePortal = function(colour)
+  {
+    for(var i = 0; i < o.portals.length; i++)
+    {
+      if(o.portals[i].colour == colour)
+      {
+        o.portals[i].close();
+        return;
+      }
+    } 
   }
 
   /* INITIALISE AND RETURN INSTANCE */

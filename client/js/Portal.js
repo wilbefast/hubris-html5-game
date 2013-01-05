@@ -23,30 +23,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /** PORTAL LINKING TWO PLAYERS **/
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Portal(pos, colour, index)
+function Portal(pos, colour)
 {
   /* RECEIVER */
   var o = this, typ = Portal;
+  
+  /* PRIVATE ATTRIBUTES 
+    var a = x; 
+  */
+  var closed = false;
   
   /* PUBLIC ATTRIBUTES 
     o.b = y; 
   */
   
   o.pos = new V2().setV2(pos);
+  o.radius = 64;
+  boundObject(o);
+  
   o.colour = colour;
-  o.index = index;
     
   /* PUBLIC METHODS 
   (o.f = function(p1, ... ) { }
   */
   
-  o.update(delta_t)
+  o.update = function(delta_t)
   {
+    return closed;
   }
   
-  o.draw()
+  o.draw = function()
   {
+    context.fillStyle = o.colour;
     context.fillCircle(o.pos.x, o.pos.y, 64);
+  }
+  
+  o.close = function()
+  {
+    console.log("closing " + o.colour + " portal!");
+    closed = true;
   }
   
   /* INITIALISE AND RETURN INSTANCE */

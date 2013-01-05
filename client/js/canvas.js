@@ -46,6 +46,16 @@ var element_offset = function(element)
 }
 canvas.offset = element_offset(canvas);
 
+// position
+
+var random_position = function()
+{
+  return new V2().setXY(Math.random() * canvas.width, 
+                        Math.random() * canvas.height);
+}
+
+
+// context
 function drawCircle(x, y, radius, fill)
 {
   context.beginPath();

@@ -57,35 +57,6 @@ function Unit(pos, radius)
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
   */
-  
-  var bound = function(v)
-  {
-    var bounded = false;
-    if(v.x < o.radius) 
-    {
-      v.x = o.radius;
-      bounded = true;
-    }
-    
-    if(v.y < o.radius) 
-    {
-      v.y = o.radius;
-      bounded = true;
-    }
-    
-    if(v.x > canvas.width - o.radius) 
-    {
-      v.x = canvas.width - o.radius;
-      bounded = true;
-    }
-    
-    if(v.y > canvas.height - o.radius) 
-    {
-      v.y = canvas.height - o.radius;
-      bounded = true;
-    }
-    return bounded;
-  }
     
   var start_idle = function()
   {
@@ -115,7 +86,6 @@ function Unit(pos, radius)
     if(o.pos.dist2(dest) > o.radius2)
     {
       o.dest.setV2(dest);
-      bound(o.dest);
       o.dir.setFromTo(o.pos, o.dest).normalise();
       o.state = goto;
     }
@@ -213,7 +183,7 @@ function Unit(pos, radius)
     o.energy.withdraw(typ.STARVE_SPEED * delta_t);
     
     // PHYSICS -- check if crossing boundary or arried at destination
-    if(bound(o.pos))
+    if(boundObject(o))
       start_idle();
     
     // ARTIFICIAL INTELLIGENCE -- do whatever the state requires

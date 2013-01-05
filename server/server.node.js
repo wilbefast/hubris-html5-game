@@ -59,7 +59,11 @@ function httpService(request, response)
 {
   // hello world
   response.writeHead(200, {"Content-Type": "text/html"});
-  response.write(html);
+  
+  response.write("<h>players in game<h>");
+  for(var i = 0; i < players.length; i++)
+    response.write("<p>" + players[i].col + "</p>");
+  //response.write(html);
   response.end();
 }
 
@@ -103,7 +107,7 @@ function receiveRequest(request)
   for(var i = 0; i < players.length; i++) if(i != playerIndex)
   {
     players[i].con.sendUTF(packet);
-    connection.sendUTF(JSON.stringify({ type: 'open_portal', 
+    connection.sendUTF(JSON.stringify({ type : 'open_portal', 
                                         data : players[i].col }));
   }
   
@@ -130,7 +134,10 @@ function receiveRequest(request)
     // tell inform the other players of the disconnection
     var packet = JSON.stringify({ type: 'close_portal', data : playerColour });
     for(var i = 0; i < players.length; i++)
+    {
+      t_log('told ' + players[i].col + ' about ' + playerColour + ' disconnecting.');
       players[i].con.sendUTF(packet);
+    }
   }
   connection.on('close', closeConnection);
 }

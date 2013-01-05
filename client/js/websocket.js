@@ -53,6 +53,18 @@ function onMessage(message)
     case 'colour':
       local_player.colour = json.data;
       break;
+      
+    case 'open_portal':
+      Game.INSTANCE.openPortal(json.data);
+      break;
+      
+    case 'close_portal':
+      Game.INSTANCE.closePortal(json.data);
+      break;
+      
+    default:
+      console.log('recognised JSON type: ' + json.type);
+      break;
   }
 }
 

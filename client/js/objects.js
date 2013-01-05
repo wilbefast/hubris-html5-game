@@ -20,6 +20,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 "use strict";
 
+function boundObject(o)
+{
+  var bounded = false;
+  if(o.pos.x < o.radius) 
+  {
+    o.pos.x = o.radius;
+    bounded = true;
+  }
+  
+  if(o.pos.y < o.radius) 
+  {
+    o.pos.y = o.radius;
+    bounded = true;
+  }
+  
+  if(o.pos.x > canvas.width - o.radius) 
+  {
+    o.pos.x = canvas.width - o.radius;
+    bounded = true;
+  }
+  
+  if(o.pos.y > canvas.height - o.radius) 
+  {
+    o.pos.y = canvas.height - o.radius;
+    bounded = true;
+  }
+  return bounded;
+}
+
 // check for a collision
 function areColliding(a, b)
 {
