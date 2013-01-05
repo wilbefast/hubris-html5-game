@@ -99,7 +99,8 @@ function Game()
       return;
     
     // update objects
-    updateObjects(Warrior.objects, delta_t, [ generateCollision ], o.grid);
+    updateObjects(Warrior.objects, delta_t, 
+                  [ generateCollision, Warrior.acquireTargets ], o.grid);
     updateObjects(o.portals, delta_t);
     
     // generate collisions between units and portals
@@ -192,6 +193,8 @@ function Game()
       src : local_player.id,
       dest : portal.owner.id
     };
+    
+    // TODO conserve units team, not where it came from
     
     
     websocket.send(JSON.stringify(packet));

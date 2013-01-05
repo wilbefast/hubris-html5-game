@@ -60,7 +60,7 @@ function Unit(pos, owner, subtype)
   o.tile = null;
   
   //! RESOURCES ----------------------------------------------------------------
-  o.energy = new Bank(0.5, 0, 1);
+  o.energy = new Bank(0.8, 0, 1);
   
   //! OTHER ----------------------------------------------------------------
   o.owner = owner;
@@ -69,7 +69,7 @@ function Unit(pos, owner, subtype)
   var f = function(p1, ... ) { } 
   */
     
-  var start_idle = function()
+  o.start_idle = function()
   {
     o.dest.setV2(o.pos);
     o.dir.setXY(0, 0);
@@ -100,7 +100,7 @@ function Unit(pos, owner, subtype)
     }
     // cancel if we've already arrived
     else
-      start_idle();
+      o.start_idle();
   }
   
   var start_transit = function(direction)
@@ -126,7 +126,7 @@ function Unit(pos, owner, subtype)
     
     // if no longer hungry, stop eating
     if(o.energy.isFull())
-      start_idle();
+      o.start_idle();
     
     // keep eating until full
     else
@@ -143,7 +143,7 @@ function Unit(pos, owner, subtype)
         if(o.pos.dist2(o.dest) > o.radius2)
           start_goto(o.dest);
         else
-          start_idle();
+          o.start_idle();
       }
       // search for more food if none is around
       else if(can_eat < could_eat)
@@ -174,7 +174,7 @@ function Unit(pos, owner, subtype)
     
     // stop at destination
     if(o.pos.dist2(o.dest) < 1)
-      start_idle();
+      o.start_idle();
     
     // stop if too hungry
     else if(o.energy.getBalance() < typ.EAT_THRESHOLD_GOTO)
@@ -204,7 +204,7 @@ function Unit(pos, owner, subtype)
         if(o.owner.id != local_player.id)
           start_goto(random_position());
         else
-          start_idle();
+          o.start_idle();
       }
       else
         o.setRadius(o.radius + TRANSIT_SPEED)
@@ -236,7 +236,7 @@ function Unit(pos, owner, subtype)
     
     // PHYSICS -- check if crossing boundary or arried at destination
     if(boundObject(o))
-      start_idle();
+      o.start_idle();
     
     // ARTIFICIAL INTELLIGENCE -- do whatever the state requires
     o.state(delta_t);
@@ -322,7 +322,9 @@ function Unit(pos, owner, subtype)
     // collision with portals
     else if(other instanceof Portal)
     {
-      if(o.dest.dist2(other.pos) < other.radius2 && o.transit == 0)
+      if(o.dest.dist2(other.pos) < other.radius2 
+        && o.transit == 0 
+        && o.energy.getBalance() > typ.EAT_THRESHOLD_GOTO)
       {
         Game.INSTANCE.sendThroughPortal(o, other);
         o.pos.setV2(other.pos);
