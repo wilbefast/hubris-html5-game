@@ -29,8 +29,8 @@ Tile.DECAY_SPEED = 0.001;
 
 function resetColour(bank)
 {
-  var c = 255 - Math.round(255 * bank.getBalance());
-  return 'rgb(' + c + ',' + c + ',200)';
+  var c = Math.round(255 * bank.getBalance());
+  return 'rgb(' + c + ',' + c + ',' + c + ')';
 }
 
 /// INSTANCE ATTRIBUTES/METHODS

@@ -24,12 +24,50 @@ Warrior.STARVE_SPEED = 0.003;
 Warrior.EAT_SPEED = 0.01;
 Warrior.EAT_THRESHOLD_IDLE = 0.5;
 Warrior.EAT_THRESHOLD_GOTO = 0.2;
+Warrior.RANGE = 200;
+
+Warrior.objects = [];
 
 function Warrior(pos, owner)
 {
   /* RECEIVER */
-  var o = new Unit(pos, owner, Warrior);
+  var o = new Unit(pos, owner, Warrior), typ = Warrior;
   
+  // ATTRIBUTES
+  // ---------------------------------------------------------------------------
+  o.nearest_enemy = null;
+  o.nearest_dist2 = 0;
+  
+  // METHODS
+  // ---------------------------------------------------------------------------
+  o.checkIfNearest = function(new_enemy)
+  {
+    // only interested in enemies
+    if(new_enemy.owner.id == id)
+      return;
+    
+    var new_distance2 = o.pos.dist2(new_enemy.pos);
+    if(o.nearest_enemy == null || o.nearest_dist2 > new_distance2)
+    {
+      o.nearest_dist2 = new_distance2;
+      o.nearest_enemy = new_friend;
+    }
+  }
+  
+  // OVERIDES
+  // ---------------------------------------------------------------------------
+  o.idle = function(delta_t)
+  {
+    // IDLE
+    
+    // hungry while waiting
+    if(o.energy.getBalance() < typ.EAT_THRESHOLD_IDLE)
+      o.start_harvest();
+    
+    // aquire target
+    else if(o.nearest_enemy)
+      
+  }
   
   o.draw_body = function()
   {
@@ -42,6 +80,9 @@ function Warrior(pos, owner)
     context.closePath();
     context.fill(); 
     context.stroke();
+    
+    if(o.nearest_enemy)
+      context.strokeLine(o.pos.x, o.pos.y, o.nearest_enemy.x, o.nearest_enemy.y);
   }
   
   /* INITIALISE AND RETURN INSTANCE */

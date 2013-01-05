@@ -25,6 +25,8 @@ Unit.EAT_SPEED = 0.01;
 Unit.EAT_THRESHOLD_IDLE = 0.5;
 Unit.EAT_THRESHOLD_GOTO = 0.2;
 
+Unit.objects = [];
+
 var UNIT_RADIUS = 16,
     TRANSIT_SPEED = 0.8;
 
@@ -33,6 +35,7 @@ function Unit(pos, owner, subtype)
 {
   /* RECEIVER */
   var o = this, typ = (subtype == undefined) ? Unit : subtype;
+  typ.objects.push(o);
   
   /* PRIVATE ATTRIBUTES 
     var a = x; 
@@ -70,10 +73,10 @@ function Unit(pos, owner, subtype)
   {
     o.dest.setV2(o.pos);
     o.dir.setXY(0, 0);
-    o.state = idle;
+    o.state = o.idle;
   }
   
-  var start_harvest = function()
+  o.start_harvest = function()
   {
     o.dir.setXY(0, 0);
     o.state = harvest;
@@ -108,13 +111,13 @@ function Unit(pos, owner, subtype)
     o.transit = direction;
   }
   
-  var idle = function(delta_t)
+  o.idle = function(delta_t)
   {
     // IDLE
     
     // hungry while waiting
     if(o.energy.getBalance() < typ.EAT_THRESHOLD_IDLE)
-      start_harvest();
+      o.start_harvest();
   }
  
   var harvest = function(delta_t)
@@ -154,11 +157,11 @@ function Unit(pos, owner, subtype)
     
     // stop to eat when timer runs out
     if(o.wander_timer.countdown(delta_t))
-      start_harvest();
+      o.start_harvest();
     
     // stop to eat if there's food to be had
     else if(o.tile && o.tile.energy.getBalance() > typ.EAT_THRESHOLD_IDLE)
-      start_harvest();
+      o.start_harvest();
     
     // search out something to eat
     else
@@ -175,7 +178,7 @@ function Unit(pos, owner, subtype)
     
     // stop if too hungry
     else if(o.energy.getBalance() < typ.EAT_THRESHOLD_GOTO)
-      start_harvest();
+      o.start_harvest();
     
     // recalculate direction if going the wrong way
     else if(!o.movingToDest())
@@ -196,7 +199,12 @@ function Unit(pos, owner, subtype)
       {
         o.setRadius(UNIT_RADIUS);
         o.transit = 0;
-        start_idle();
+        
+        // move to random position if foreign
+        if(o.owner.id != local_player.id)
+          start_goto(random_position());
+        else
+          start_idle();
       }
       else
         o.setRadius(o.radius + TRANSIT_SPEED)
@@ -234,7 +242,10 @@ function Unit(pos, owner, subtype)
     o.state(delta_t);
     
     // die if energy is empty
-    return (o.energy.isEmpty() || o.radius < 0);
+    if(o.energy.isEmpty())
+      start_transit(-1);
+    
+    return (o.radius < 0);
   }
   
   o.movingToDest = function()
@@ -263,16 +274,19 @@ function Unit(pos, owner, subtype)
     
     // draw full part of energy bar
     context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, 
-                     o.radius * o.energy.getBalance(), 10);
+                     o.radius * o.energy.getBalance(), o.hradius);
     
     // draw empty part of energy bar
-    context.fillStyle = 'white';
+    context.fillStyle = 'black';
     context.fillRect(o.pos.x - o.hradius + o.radius * o.energy.getBalance(), 
-                       o.pos.y + o.radius, o.radius * (1 - o.energy.getBalance()), 10);
+                      o.pos.y + o.radius, 
+                      o.radius * (1 - o.energy.getBalance()), o.hradius);
     
     // draw energy bar outline
     context.strokeStyle = 'black';
-    context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius, 10);
+    context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, 
+                       o.radius, 
+                       o.hradius);
     
     // draw the body
     o.draw_body();
@@ -308,7 +322,7 @@ function Unit(pos, owner, subtype)
     // collision with portals
     else if(other instanceof Portal)
     {
-      if(o.dest.dist2(other.pos) < other.radius2 && o.transit == 0 && owner.id == local_player.id)
+      if(o.dest.dist2(other.pos) < other.radius2 && o.transit == 0)
       {
         Game.INSTANCE.sendThroughPortal(o, other);
         o.pos.setV2(other.pos);

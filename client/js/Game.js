@@ -38,7 +38,6 @@ function Game()
   
   o.grid = new Tilegrid(new V2(32, 32));
   
-  o.units = [];
   o.portals = [];
   o.selected = null;
     
@@ -57,10 +56,12 @@ function Game()
         switch(event.button)
         {
           case 0: // left
-            o.selected = getObjectAt(mouse.pos, o.units, isMine);
+            o.selected = getObjectAt(mouse.pos, Warrior.objects, isMine);
+            if(!o.selected)
+              o.selected = getObjectAt(mouse.pos, Unit.objects, isMine);
             break;
           case 2: // right
-            o.units.push(new Warrior(mouse.pos, local_player));
+            new Warrior(mouse.pos, local_player); // auto-allocated
             break;
         }
         break;
@@ -98,11 +99,11 @@ function Game()
       return;
     
     // update objects
-    updateObjects(o.units, delta_t, [ generateCollision ], o.grid);
+    updateObjects(Warrior.objects, delta_t, [ generateCollision ], o.grid);
     updateObjects(o.portals, delta_t);
     
     // generate collisions between units and portals
-    generateObjectCollisions(o.units, o.portals);
+    generateObjectCollisions(Warrior.objects, o.portals);
      
     // update grid
     o.grid.update(delta_t);
@@ -145,7 +146,7 @@ function Game()
     }
     
     // draw units
-    drawObjects(o.units);
+    drawObjects(Warrior.objects);
 
   }
   
@@ -178,8 +179,6 @@ function Game()
   {
     var p = o.idToPortal(packet.src),
         u = new window[packet.class](p.pos, p.owner);
-    o.units.push(u);
-    u.goto(random_position());
     u.arrive();
   }
   
