@@ -60,35 +60,34 @@ function Unit(pos, radius)
     
   var start_idle = function()
   {
-    o.dest.setV2(pos);
+    o.dest.setV2(o.pos);
     o.dir.setXY(0, 0);
     o.state = idle;
   }
   
   var start_harvest = function()
   {
-    o.dest.setV2(pos);
     o.dir.setXY(0, 0);
-    
     o.state = harvest;
   }
   
   var start_wander = function()
   {
     o.dir.randomDir().normalise();
-    o.dest.setV2(o.dir).scaleV2(Tile.SIZE).addV2(o.pos);
     o.state = wander;
     o.wander_timer.reset();
   }
   
   var start_goto = function(dest)
   {
+    // set out towards a distant location
     if(o.pos.dist2(dest) > o.radius2)
     {
       o.dest.setV2(dest);
       o.dir.setFromTo(o.pos, o.dest).normalise();
       o.state = goto;
     }
+    // cancel if we've already arrived
     else
       start_idle();
   }
@@ -118,9 +117,16 @@ function Unit(pos, radius)
           can_eat = o.tile.energy.withdraw(could_eat);
       o.energy.deposit(can_eat);
       
-      // search for more food if none is around
+      // stop if energy if full
       if(o.energy.isFull())
-        start_idle();
+      {
+        // continue towards destination 
+        if(o.pos.dist2(o.dest) > o.radius2)
+          start_goto(o.dest);
+        else
+          start_idle();
+      }
+      // search for more food if none is around
       else if(can_eat < could_eat)
         start_wander();
     }
@@ -211,7 +217,7 @@ function Unit(pos, radius)
     context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius, 10);
     
     // draw direction
-    if(o.dir.x != 0 || o.dir.y != 0)
+    //if(o.dir.x != 0 || o.dir.y != 0)
       context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
   }
   
