@@ -44,7 +44,7 @@ function Tile(row, col)
   */
   
   o.gridpos = new V2(col, row);
-  o.energy = new Bank(Math.random(), 0, 1);
+  o.energy = new Bank(Math.random() * 0.5 + 0.5, 0, 1);
   o.colour = resetColour(o.energy);
   o.barren = false;
   

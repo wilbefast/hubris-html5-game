@@ -56,12 +56,31 @@ function Game()
         switch(event.button)
         {
           case 0: // left
+            // select a warriro?
             o.selected = getObjectAt(mouse.pos, Warrior.objects, isMine);
+            
+            // select a civillian?
             if(!o.selected)
               o.selected = getObjectAt(mouse.pos, Unit.objects, isMine);
             break;
+            
+            
+            
           case 2: // right
-            new Warrior(mouse.pos, local_player); // auto-allocated
+            var promote = getObjectAt(mouse.pos, Unit.objects, isMine);
+            if(promote)
+            {
+              // promote a civillian?
+              if(promote.energy.getBalance() > 0.7)
+              {
+                promote.start_transit(-1);
+                new Warrior(promote.pos, local_player); // auto-allocated
+              }
+            }
+            
+            // create a civillian?
+            else
+              new Unit(mouse.pos, local_player); // auto-allocated
             break;
         }
         break;
@@ -99,6 +118,7 @@ function Game()
       return;
     
     // update objects
+    updateObjects(Unit.objects, delta_t, [ generateCollision ], o.grid);
     updateObjects(Warrior.objects, delta_t, 
                   [ generateCollision, Warrior.acquireTargets ], o.grid);
     updateObjects(o.portals, delta_t);
@@ -148,6 +168,7 @@ function Game()
     
     // draw units
     drawObjects(Warrior.objects);
+    drawObjects(Unit.objects);
 
   }
   

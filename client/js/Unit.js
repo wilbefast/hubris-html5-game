@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 "use strict";
 
-Unit.STARVE_SPEED = 0.003;
-Unit.EAT_SPEED = 0.01;
-Unit.EAT_THRESHOLD_IDLE = 0.5;
+Unit.STARVE_SPEED = 0.001;
+Unit.EAT_SPEED = 0.003;
+Unit.EAT_THRESHOLD_IDLE = 0.8;
 Unit.EAT_THRESHOLD_GOTO = 0.2;
+Unit.SPAWN_ENERGY = 0.1;
 
 Unit.objects = [];
 
@@ -60,7 +61,7 @@ function Unit(pos, owner, subtype)
   o.tile = null;
   
   //! RESOURCES ----------------------------------------------------------------
-  o.energy = new Bank(0.8, 0, 1);
+  o.energy = new Bank(typ.SPAWN_ENERGY, 0, 1);
   
   //! OTHER ----------------------------------------------------------------
   o.owner = owner;
@@ -103,7 +104,7 @@ function Unit(pos, owner, subtype)
       o.start_idle();
   }
   
-  var start_transit = function(direction)
+  o.start_transit = function(direction)
   {
     o.dest.setV2(o.pos);
     o.dir.setXY(0, 0);
@@ -243,7 +244,7 @@ function Unit(pos, owner, subtype)
     
     // die if energy is empty
     if(o.energy.isEmpty())
-      start_transit(-1);
+      o.start_transit(-1);
     
     return (o.radius < 0);
   }
@@ -328,7 +329,7 @@ function Unit(pos, owner, subtype)
       {
         Game.INSTANCE.sendThroughPortal(o, other);
         o.pos.setV2(other.pos);
-        start_transit(-1); // leave through portal
+        o.start_transit(-1); // leave through portal
       }
     }
   }
@@ -336,7 +337,7 @@ function Unit(pos, owner, subtype)
   o.arrive = function()
   { 
     o.setRadius(0); 
-    start_transit(1); // arrive through portal
+    o.start_transit(1); // arrive through portal
   }
   
   o.getType = function()
