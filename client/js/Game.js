@@ -59,7 +59,7 @@ function Game()
             o.selected = getObjectAt(mouse.pos, o.units, isMine);
             break;
           case 2: // right
-            o.units.push(new Unit(mouse.pos, 16, local_player));
+            o.units.push(new Unit(mouse.pos, local_player));
             break;
         }
         break;
@@ -133,9 +133,12 @@ function Game()
     context.lineWidth = 3;
     
     // draw a preview of the command
-    context.strokeStyle = local_player.colour;
+    context.strokeStyle = context.fillStyle = local_player.colour;
     if(o.selected)
+    {
       context.strokeLine(o.selected.pos.x, o.selected.pos.y, mouse.pos.x, mouse.pos.y);
+      context.fillCircle(mouse.pos.x, mouse.pos.y, 6);
+    }
     
     // draw objects
     drawObjects(o.portals);
@@ -171,9 +174,10 @@ function Game()
   o.receiveThroughPortal = function(packet)
   {
     var p = o.idToPortal(packet.src),
-        u = new Unit(p.pos, 16, p.owner);
+        u = new Unit(p.pos, p.owner);
     o.units.push(u);
-    u.goto(random_position())
+    u.goto(random_position());
+    u.arrive();
   }
   
   o.sendThroughPortal = function(unit, portal)

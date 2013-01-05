@@ -48,9 +48,11 @@ function Portal(pos, owner)
     o.radius2 = o.radius * o.radius;
   }
   o.pos = new V2().setV2(pos);
-  o.setRadius(1);
+  
 
+  o.radius = typ.RADIUS;
   boundObject(o);
+  o.setRadius(1);
   
   o.owner = owner;
     

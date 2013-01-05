@@ -24,9 +24,11 @@ Unit.STARVE_SPEED = 0.003;
 Unit.EAT_SPEED = 0.01;
 Unit.EAT_THRESHOLD_IDLE = 0.5;
 Unit.EAT_THRESHOLD_GOTO = 0.2;
+Unit.RADIUS = 16;
+Unit.TRANSIT_SPEED = 0.8;
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Unit(pos, radius, owner)
+function Unit(pos, owner)
 {
   /* RECEIVER */
   var o = this, typ = Unit;
@@ -39,11 +41,16 @@ function Unit(pos, radius, owner)
     o.b = y;
   */
   
+  o.setRadius = function(r)
+  {
+    o.radius = r;
+    o.radius2 = r * r;
+    o.hradius = r * 0.5;
+  }
+  
   //! POSITION -----------------------------------------------------------------
   o.pos = new V2().setV2(pos);
-  o.radius = radius;
-  o.hradius = radius / 2;
-  o.radius2 = radius * radius;
+  o.setRadius(typ.RADIUS);
   o.dest = new V2().setV2(pos);
   o.dir = new V2();
   o.tile = null;
@@ -52,7 +59,7 @@ function Unit(pos, radius, owner)
   o.energy = new Bank(0.5, 0, 1);
   
   //! OTHER ----------------------------------------------------------------
-  o.deleteMe = false;
+  o.transit = 0; // negative for outbound, positive for inbound
   o.owner = owner;
   
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
@@ -94,6 +101,14 @@ function Unit(pos, radius, owner)
     // cancel if we've already arrived
     else
       start_idle();
+  }
+  
+  var start_transit = function(direction)
+  {
+    o.dest.setV2(o.pos);
+    o.dir.setXY(0, 0);
+    o.state = transit;
+    o.transit = direction;
   }
   
   var idle = function(delta_t)
@@ -175,6 +190,26 @@ function Unit(pos, radius, owner)
 
   }
   
+  var transit = function(delta_t)
+  {
+    // inbound
+    if(o.transit > 0)
+    {
+      if(o.radius + typ.TRANSIT_SPEED > typ.RADIUS)
+      {
+        o.setRadius(typ.RADIUS);
+        o.transit = 0;
+        start_idle();
+      }
+      else
+        o.setRadius(o.radius + typ.TRANSIT_SPEED)
+    }
+    
+    // outbound
+    else if(o.transit < 0)
+      o.setRadius(o.radius - typ.TRANSIT_SPEED)
+  }
+  
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
   o.state = wander;
   o.wander_timer = new Timer(60, 60);
@@ -189,11 +224,6 @@ function Unit(pos, radius, owner)
   
   o.update = function(delta_t)
   {
-    // remove if delete is requested
-    if(o.deleteMe)
-      return true;
-    
-    
     // RESOURCES -- get hungry
     o.energy.withdraw(typ.STARVE_SPEED * delta_t);
     
@@ -205,7 +235,7 @@ function Unit(pos, radius, owner)
     o.state(delta_t);
     
     // die if energy is empty
-    return o.energy.isEmpty();
+    return (o.energy.isEmpty() || o.radius < 0);
   }
   
   o.movingToDest = function()
@@ -215,11 +245,14 @@ function Unit(pos, radius, owner)
   
   o.draw = function()
   {
+    context.fillStyle = owner.colour;
+    
     // draw direction only if friendly
     if(o.owner.id == local_player.id && o.movingToDest())
     {
       context.strokeStyle = owner.colour;
       context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
+      context.fillCircle(o.dest.x, o.dest.y, 6);
     }
     
     // draw body and full part of energy bar
@@ -267,12 +300,20 @@ function Unit(pos, radius, owner)
     // collision with portals
     else if(other instanceof Portal)
     {
-      if(o.dest.dist2(other.pos) < other.radius2 && owner.id == local_player.id)
+      if(o.dest.dist2(other.pos) < other.radius2 && o.transit == 0 && owner.id == local_player.id)
       {
         Game.INSTANCE.sendThroughPortal(o, other);
-        o.deleteMe = true;
+        o.pos.setV2(other.pos);
+        start_transit(-1); // leave through portal
       }
     }
+  }
+  
+  o.arrive = function()
+  { 
+    console.log("carrier has arrived!");
+    o.setRadius(0); 
+    start_transit(1); // arrive through portal
   }
   
   /* INITIALISE AND RETURN INSTANCE */
