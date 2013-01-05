@@ -108,11 +108,7 @@ function httpService(request, response)
 {
   // hello world
   response.writeHead(200, {"Content-Type": "text/html"});
-  
-  response.write("<h>players in game<h>");
-  for(var i = 0; i < players.length; i++)
-    response.write("<p>" + players[i].col + "</p>");
-  //response.write(html);
+  response.write(html);
   response.end();
 }
 
