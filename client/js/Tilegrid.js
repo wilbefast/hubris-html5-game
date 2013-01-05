@@ -60,12 +60,24 @@ function Tilegrid()
     for(var row = 0; row < o.size.y; row++)
     for(var col = 0; col < o.size.x; col++)
       o.grid[row][col].draw();
-      
   }
   
   o.getSceneNode = function(pos)
   {
     return o.grid[Math.floor(pos.y * Tile.ISIZE.y )][Math.floor(pos.x * Tile.ISIZE.x)];
+  }
+  
+  o.makeBarren = function(object)
+  {
+    var tilepos = new V2();
+    for(var row = 0; row < o.size.y; row++)
+    for(var col = 0; col < o.size.x; col++)
+    {
+      tilepos.x = (col + 0.5) * Tile.SIZE.x;
+      tilepos.y = (row + 0.5) * Tile.SIZE.y;
+      if(tilepos.dist2(object.pos) < Tile.DIAGONAL2 + object.radius2)
+        o.grid[row][col].barren = true;
+    }
   }
   
   /* INITIALISE AND RETURN INSTANCE */

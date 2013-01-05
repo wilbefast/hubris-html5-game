@@ -162,7 +162,7 @@ function Unit(pos, radius)
       start_harvest();
     
     // recalculate direction if going the wrong way
-    else if(o.dir.dot(new V2().setFromTo(o.pos, o.dest)) < 0)
+    else if(!o.movingToDest())
       start_goto(o.dest);
 
     // continue to destination
@@ -199,8 +199,20 @@ function Unit(pos, radius)
     return o.energy.isEmpty();
   }
   
+  o.movingToDest = function()
+  {
+    return (o.dir.dot(new V2().setFromTo(o.pos, o.dest)) > 0);
+  }
+  
   o.draw = function()
   {
+    // draw direction
+    if(o.movingToDest())
+    {
+      context.strokeStyle = local_player.colour;
+      context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
+    }
+    
     // draw body and full part of energy bar
     context.fillStyle = local_player.colour;
     context.fillCircle(o.pos.x, o.pos.y, o.radius);
@@ -215,10 +227,6 @@ function Unit(pos, radius)
     context.strokeStyle = 'black';
     context.strokeCircle(o.pos.x, o.pos.y, o.radius);
     context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius, 10);
-    
-    // draw direction
-    //if(o.dir.x != 0 || o.dir.y != 0)
-      context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
   }
   
   o.collidesPoint = function(p)
@@ -239,6 +247,8 @@ function Unit(pos, radius)
   
   o.collision = function(other)
   {
+    // collision with other units
+    
     var manifold = new V2().setFromTo(other.pos, o.pos);
     manifold.normalise();
     o.pos.addV2(manifold);

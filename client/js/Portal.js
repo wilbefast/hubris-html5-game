@@ -38,7 +38,10 @@ function Portal(pos, colour)
   */
   
   o.pos = new V2().setV2(pos);
-  o.radius = 64;
+  o.radius = 32;
+  o.radius1third = o.radius/3;
+  o.radius2thirds = o.radius1third*2;
+  o.radius2 = o.radius * o.radius;
   boundObject(o);
   
   o.colour = colour;
@@ -55,7 +58,10 @@ function Portal(pos, colour)
   o.draw = function()
   {
     context.fillStyle = o.colour;
-    context.fillCircle(o.pos.x, o.pos.y, 64);
+    context.fillCircle(o.pos.x, o.pos.y, o.radius);
+    context.strokeStyle = 'white';
+    context.strokeCircle(o.pos.x, o.pos.y, o.radius1third);
+    context.strokeCircle(o.pos.x, o.pos.y, o.radius2thirds);
   }
   
   o.close = function()

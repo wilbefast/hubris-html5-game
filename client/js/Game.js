@@ -110,6 +110,7 @@ function Game()
  
   o.injectDraw = function()
   {
+    // don't refresh screen if focus has been lost
     if(!canvas.focus)
       return;
 
@@ -120,19 +121,27 @@ function Game()
     // draw grid
     o.grid.draw();
     
+    // fat lines
+    context.lineWidth = 3;
+    
+    // draw a preview of the command
+    context.strokeStyle = local_player.colour;
+    if(o.selected)
+      context.strokeLine(o.selected.pos.x, o.selected.pos.y, mouse.pos.x, mouse.pos.y);
+    
     // draw objects
     drawObjects(o.units);
     drawObjects(o.portals);
-    
-    // draw a preview of the command
-    context.strokeStyle = 'black';
-    if(o.selected)
-      context.strokeLine(o.selected.pos.x, o.selected.pos.y, mouse.pos.x, mouse.pos.y);
   }
   
   o.openPortal = function(colour)
   {
-    o.portals.push(new Portal(random_position(), colour));
+    // create the portal
+    var p = new Portal(random_position(), colour);
+    o.portals.push(p);
+    
+    // make the area around it barren
+    o.grid.makeBarren(p);
   }
   
   o.closePortal = function(colour)
