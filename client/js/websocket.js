@@ -64,7 +64,7 @@ function onMessage(message)
       break;
       
     default:
-      console.log('recognised JSON type: ' + json.type);
+      console.log('unrecognised JSON type: ' + json.type);
       break;
   }
 }

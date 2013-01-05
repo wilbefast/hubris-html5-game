@@ -18,7 +18,7 @@ var fs = require('fs');
 //! ----------------------------------------------------------------------------
 
 var MAX_PLAYERS = 8;
-var players = [];
+var players = {}; // hashtable
 var colours = [ 'red', 'green', 'teal', 'magenta', 'aqua', 'yellow', 'purple', 'orange' ];
 colours.sort(function(a,b) { return Math.random() > 0.5; } );
 
@@ -26,14 +26,23 @@ colours.sort(function(a,b) { return Math.random() > 0.5; } );
 //! UTILITY FUNCTIONS
 //! ----------------------------------------------------------------------------
 
+// log with date
 function t_log(msg)
 {
   console.log((new Date()) + ' ' + msg);
 }
 
-function boardcast(msg)
+// allocate unique identifiers
+var next_id = 1;
+function allocateID()
 {
-  // TODO
+  return (next_id++);
+}
+
+// player to packet
+function playerToPacket(player, title)
+{
+  return JSON.stringify({ type : title, id : player.id, colour : player.colour });
 }
 
 
@@ -81,6 +90,7 @@ wsServer = new WebSocketServer({ httpServer: httpServer });
 // treat requests
 function receiveRequest(request)
 {
+  //! --------------------------------------------------------------------------
   //! LIMIT CONNECTIONS
   if(players.length >= MAX_PLAYERS)
   {
@@ -89,28 +99,32 @@ function receiveRequest(request)
     return;
   }
   
-  //! OPEN CONNECTION TO NEW CLIENT
-  var connection = request.accept(null, request.origin);
-  var playerIndex = players.length;
+  //! --------------------------------------------------------------------------
+  //! OPEN CONNECTION TO NEW CLIENT 
+  var player = 
+  {
+    connection : request.accept(null, request.origin),
+    id : allocateID(),
+    colour : colours.shift()
+  };
   
   // give the player a colour
-  var playerColour = colours.shift();
-  var packet = JSON.stringify({ type : 'colour', data : playerColour });
-  connection.sendUTF(packet);
-  t_log(playerColour + ' player joined.');
+  player.connection.sendUTF(playerToPacket(player, 'welcome'));
+  t_log(player.colour + ' joined.');
   
   // add to the list of players
-  players.push({con : connection, col : playerColour });
+  players[player.id] = player;
   
   // tell the players about eachother
-  packet = JSON.stringify({ type: 'open_portal', data : playerColour });
-  for(var i = 0; i < players.length; i++) if(i != playerIndex)
+  var packet = playerToPacket(player, 'open_portal');
+  for(var i in players) if(i != player.id)
   {
-    players[i].con.sendUTF(packet);
-    connection.sendUTF(JSON.stringify({ type : 'open_portal', 
-                                        data : players[i].col }));
+    var other = players[i];
+    other.connection.sendUTF(packet);
+    player.connection.sendUTF(playerToPacket(other, 'open_portal'));
   }
   
+  //! --------------------------------------------------------------------------
   //! RECEIVE MESSAGE
   function receiveMessage(message)
   {
@@ -120,25 +134,27 @@ function receiveRequest(request)
       t_log('received message: ' + message.utf8Data);
     }
   }
-  connection.on('message', receiveMessage);
+  player.connection.on('message', receiveMessage);
   
+  //! --------------------------------------------------------------------------
   //! CLOSE CONNECTION
   function closeConnection(connection)
   {
     // remove the leaving player from the list
-    t_log(playerColour + ' player disconnected.');
-    players.splice(playerIndex, 1);
-    colours.push(playerColour);
+    t_log(player.colour + ' disconnected.');
+    delete players[player.id];
+    colours.push(player.colour);
     
     // tell inform the other players of the disconnection
-    var packet = JSON.stringify({ type: 'close_portal', data : playerColour });
-    for(var i = 0; i < players.length; i++)
+    var packet = playerToPacket(player, 'close_portal');
+    for (var i in players)
     {
-      t_log('told ' + players[i].col + ' about ' + playerColour + ' disconnecting.');
-      players[i].con.sendUTF(packet);
+      var other = players[i];
+      other.connection.sendUTF(packet);
+      t_log('told ' + other.colour + ' about ' + player.colour + ' disconnecting.');
     }
   }
-  connection.on('close', closeConnection);
+  player.connection.on('close', closeConnection);
 }
 wsServer.on('request', receiveRequest);
 

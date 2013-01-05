@@ -137,31 +137,29 @@ function Game()
     drawObjects(o.portals);
   }
   
-  o.openPortal = function(colour)
+  o.idToPortal = function(id)
+  {
+    for(var i = 0; i < o.portals.length; i++)
+      if(o.portals[i].owner.id == id)
+        return o.portals[i];
+    return null;
+  }
+  
+  o.openPortal = function(player)
   {
     // create the portal
-    var p = new Portal(random_position(), colour);
+    var p = new Portal(random_position(), player);
     o.portals.push(p);
     
     // make the area around it barren
     o.grid.setBarren(p, true);
   }
   
-  o.closePortal = function(colour)
+  o.closePortal = function(player)
   {
-    for(var i = 0; i < o.portals.length; i++)
-    {
-      if(o.portals[i].colour == colour)
-      {
-        // destroy the portal
-        o.portals[i].close();
-        
-        // make the area around it fertile again
-        o.grid.setBarren(o.portals[i], false);
-        
-        return;
-      }
-    } 
+    var p = o.idToPortal(player.id);
+    p.close();
+    o.grid.setBarren(p, false);
   }
   
   o.sendThroughPortal = function(unit, portal)

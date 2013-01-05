@@ -26,7 +26,7 @@ Portal.OPEN_SPEED = 0.6;
 Portal.RADIUS = 32;
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Portal(pos, colour)
+function Portal(pos, owner)
 {
   /* RECEIVER */
   var o = this, typ = Portal;
@@ -52,7 +52,7 @@ function Portal(pos, colour)
 
   boundObject(o);
   
-  o.colour = colour;
+  o.owner = owner;
     
   /* PUBLIC METHODS 
   (o.f = function(p1, ... ) { }
@@ -80,7 +80,7 @@ function Portal(pos, colour)
   
   o.draw = function()
   {
-    context.fillStyle = o.colour;
+    context.fillStyle = o.owner.colour;
     context.fillCircle(o.pos.x, o.pos.y, o.radius);
     context.strokeStyle = 'white';
     context.strokeCircle(o.pos.x, o.pos.y, o.radius1third);
