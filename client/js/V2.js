@@ -39,7 +39,7 @@ function V2(init_x, init_y)
   
   obj.norm = function()
   {
-    return (obj.x == 0) ? Math.abs(y) 
+    return (obj.x == 0) ? Math.abs(obj.y) 
                     : ((obj.y == 0) ? Math.abs(obj.x) 
                                 : Math.sqrt(obj.x*obj.x + obj.y*obj.y));
   }

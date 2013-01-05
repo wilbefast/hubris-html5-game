@@ -43,7 +43,7 @@ function onMessage(message)
   } 
   catch (e) 
   {
-    console.log((new Date()) + ' message is not JSON:', message.data);
+    console.log((new Date()) + ' message is not JSON: ' + e);
     return;
   }
   
@@ -61,6 +61,10 @@ function onMessage(message)
       
     case 'close_portal':
       Game.INSTANCE.closePortal(json);
+      break;
+      
+    case 'unit':
+      Game.INSTANCE.receiveThroughPortal(json);
       break;
       
     default:

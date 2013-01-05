@@ -126,12 +126,12 @@ function updateObjects(obj_array, delta_t, tween_functions, scenegraph)
 }
 
 // get an object at a position
-function getObjectAt(pos, obj_array)
+function getObjectAt(pos, obj_array, condition)
 {
   for(var i = 0; i < obj_array.length; i++)
   {
     var object = obj_array[i];
-    if(object.collidesPoint(pos))
+    if(object.collidesPoint(pos) && (!condition || condition(object)))
       return object;   
   }
   return null;

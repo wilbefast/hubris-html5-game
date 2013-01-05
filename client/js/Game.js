@@ -43,6 +43,11 @@ function Game()
     
   /* PRIVATE METHODS */
   
+  var isMine = function(o)
+  {
+    return o.owner.id == local_player.id;
+  }
+  
   var treatEvent = function(event)
   {
     switch(event.type)
@@ -51,10 +56,10 @@ function Game()
         switch(event.button)
         {
           case 0: // left
-            o.selected = getObjectAt(mouse.pos, o.units);
+            o.selected = getObjectAt(mouse.pos, o.units, isMine);
             break;
           case 2: // right
-            o.units.push(new Unit(mouse.pos, 16));
+            o.units.push(new Unit(mouse.pos, 16, local_player));
             break;
         }
         break;
@@ -133,8 +138,9 @@ function Game()
       context.strokeLine(o.selected.pos.x, o.selected.pos.y, mouse.pos.x, mouse.pos.y);
     
     // draw objects
-    drawObjects(o.units);
     drawObjects(o.portals);
+    drawObjects(o.units);
+
   }
   
   o.idToPortal = function(id)
@@ -162,10 +168,25 @@ function Game()
     o.grid.setBarren(p, false);
   }
   
+  o.receiveThroughPortal = function(packet)
+  {
+    var p = o.idToPortal(packet.src),
+        u = new Unit(p.pos, 16, p.owner);
+    o.units.push(u);
+    u.goto(random_position())
+  }
+  
   o.sendThroughPortal = function(unit, portal)
   {
-    var packet = JSON.stringify(unit);
-    websocket.send("bink");
+    var packet = 
+    {
+      type : 'unit', 
+      class : unit.typ,
+      energy : unit.energy.getBalance().toFixed(2), 
+      src : local_player.id,
+      dest : portal.owner.id
+    };
+    websocket.send(JSON.stringify(packet));
   }
 
   /* INITIALISE AND RETURN INSTANCE */

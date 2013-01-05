@@ -53,6 +53,7 @@ function Unit(pos, radius, owner)
   
   //! OTHER ----------------------------------------------------------------
   o.deleteMe = false;
+  o.owner = owner;
   
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
   o.wander_timer = new Timer(60);
@@ -214,15 +215,15 @@ function Unit(pos, radius, owner)
   
   o.draw = function()
   {
-    // draw direction
-    if(o.movingToDest())
+    // draw direction only if friendly
+    if(o.owner.id == local_player.id && o.movingToDest())
     {
-      context.strokeStyle = local_player.colour;
+      context.strokeStyle = owner.colour;
       context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
     }
     
     // draw body and full part of energy bar
-    context.fillStyle = local_player.colour;
+    context.fillStyle = owner.colour;
     context.fillCircle(o.pos.x, o.pos.y, o.radius);
     context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius * o.energy.getBalance(), 10);
     
@@ -266,7 +267,7 @@ function Unit(pos, radius, owner)
     // collision with portals
     else if(other instanceof Portal)
     {
-      if(o.dest.dist2(other.pos) < other.radius2)
+      if(o.dest.dist2(other.pos) < other.radius2 && owner.id == local_player.id)
       {
         Game.INSTANCE.sendThroughPortal(o, other);
         o.deleteMe = true;

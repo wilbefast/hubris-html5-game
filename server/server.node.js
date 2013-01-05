@@ -39,10 +39,17 @@ function allocateID()
   return (next_id++);
 }
 
-// player to packet
+// convert player-object to a packet (add title and remove connection)
 function playerToPacket(player, title)
 {
   return JSON.stringify({ type : title, id : player.id, colour : player.colour });
+}
+
+// send a message to all players except the sender
+function broadcast(message, sender)
+{
+  for(var i in players) if(i != sender.id)
+    players[i].connection.sendUTF(message);
 }
 
 
@@ -130,8 +137,30 @@ function receiveRequest(request)
   {
     if (message.type === 'utf8') 
     {
-      // TODO treat webservice message
       t_log('received message: ' + message.utf8Data);
+      
+      // parse message to object
+      try 
+      {
+        var json = JSON.parse(message.utf8Data);
+      } 
+      catch (e) 
+      {
+        t_log('message is not JSON: ' + e);
+        return;
+      }
+      
+      // deal with message
+      switch(json.type)
+      {
+        case 'unit':
+          players[json.dest].connection.sendUTF(message.utf8Data);
+          break;
+          
+        default:
+          t_log('unrecognised JSON type: ' + json.type);
+          break;
+      }
     }
   }
   player.connection.on('message', receiveMessage);
@@ -145,7 +174,7 @@ function receiveRequest(request)
     delete players[player.id];
     colours.push(player.colour);
     
-    // tell inform the other players of the disconnection
+    // inform the other players of the disconnection
     var packet = playerToPacket(player, 'close_portal');
     for (var i in players)
     {
