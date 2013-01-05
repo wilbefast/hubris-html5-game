@@ -19,8 +19,41 @@ var fs = require('fs');
 
 var MAX_PLAYERS = 8;
 var players = {}; // hashtable
-var colours = [ 'red', 'green', 'teal', 'magenta', 'aqua', 'yellow', 'purple', 'orange' ];
+
+// original code from: http://mjijackson.com/
+function hsl2rgb(h, s, l)
+{
+  var r, g, b;
+  if(s == 0)
+    r = g = b = l; // achromatic
+  else
+  {
+    function h2rgb(p, q, t)
+    {
+      if(t < 0) t += 1;
+      if(t > 1) t -= 1;
+      if(t < 1/6) return p + (q - p) * 6 * t;
+      if(t < 1/2) return q;
+      if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    }
+
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    r = h2rgb(p, q, h + 1/3);
+    g = h2rgb(p, q, h);
+    b = h2rgb(p, q, h - 1/3);
+  }
+  return ('rgb(' + Math.round(r * 255) + ',' 
+                + Math.round(g * 255) + ',' 
+                + Math.round(b * 255) + ')');
+}
+
+colours = [];
+for(var i = 0; i < MAX_PLAYERS; i++)
+  colours.push(hsl2rgb(i / MAX_PLAYERS, 1, 0.5));
 colours.sort(function(a,b) { return Math.random() > 0.5; } );
+
 
 //! ----------------------------------------------------------------------------
 //! UTILITY FUNCTIONS

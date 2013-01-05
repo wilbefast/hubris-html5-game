@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Game.MAX_FPS = 60;
 
 /// INSTANCE ATTRIBUTES/METHODS
+
 function Game()
 {
   /* RECEIVER */
@@ -59,7 +60,7 @@ function Game()
             o.selected = getObjectAt(mouse.pos, o.units, isMine);
             break;
           case 2: // right
-            o.units.push(new Unit(mouse.pos, local_player));
+            o.units.push(new Warrior(mouse.pos, local_player));
             break;
         }
         break;
@@ -176,7 +177,7 @@ function Game()
   o.receiveThroughPortal = function(packet)
   {
     var p = o.idToPortal(packet.src),
-        u = new Unit(p.pos, p.owner);
+        u = new window[packet.class](p.pos, p.owner);
     o.units.push(u);
     u.goto(random_position());
     u.arrive();
@@ -187,11 +188,13 @@ function Game()
     var packet = 
     {
       type : 'unit', 
-      class : unit.typ,
+      class : unit.getType().name,
       energy : unit.energy.getBalance().toFixed(2), 
       src : local_player.id,
       dest : portal.owner.id
     };
+    
+    
     websocket.send(JSON.stringify(packet));
   }
 

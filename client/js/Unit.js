@@ -29,10 +29,10 @@ var UNIT_RADIUS = 16,
     TRANSIT_SPEED = 0.8;
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Unit(pos, owner)
+function Unit(pos, owner, subtype)
 {
   /* RECEIVER */
-  var o = this, typ = Unit;
+  var o = this, typ = (subtype == undefined) ? Unit : subtype;
   
   /* PRIVATE ATTRIBUTES 
     var a = x; 
@@ -60,11 +60,7 @@ function Unit(pos, owner)
   o.energy = new Bank(0.5, 0, 1);
   
   //! OTHER ----------------------------------------------------------------
-  o.transit = 0; // negative for outbound, positive for inbound
   o.owner = owner;
-  
-  //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
-  o.wander_timer = new Timer(60);
   
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
@@ -108,7 +104,7 @@ function Unit(pos, owner)
   {
     o.dest.setV2(o.pos);
     o.dir.setXY(0, 0);
-    o.state = transit;
+    o.state = teleport;
     o.transit = direction;
   }
   
@@ -191,7 +187,7 @@ function Unit(pos, owner)
 
   }
   
-  var transit = function(delta_t)
+  var teleport = function(delta_t)
   {
     // inbound
     if(o.transit > 0)
@@ -212,9 +208,11 @@ function Unit(pos, owner)
   }
   
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
-  o.state = wander;
+  o.setRadius(0); 
+  o.state = teleport;
+  o.transit = 1;
   o.wander_timer = new Timer(60, 60);
-  
+
   
   //! --------------------------------------------------------------------------
     
@@ -321,9 +319,13 @@ function Unit(pos, owner)
   
   o.arrive = function()
   { 
-    console.log("carrier has arrived!");
     o.setRadius(0); 
     start_transit(1); // arrive through portal
+  }
+  
+  o.getType = function()
+  {
+    return typ;
   }
   
   /* INITIALISE AND RETURN INSTANCE */
