@@ -24,8 +24,9 @@ Unit.STARVE_SPEED = 0.003;
 Unit.EAT_SPEED = 0.01;
 Unit.EAT_THRESHOLD_IDLE = 0.5;
 Unit.EAT_THRESHOLD_GOTO = 0.2;
-Unit.RADIUS = 16;
-Unit.TRANSIT_SPEED = 0.8;
+
+var UNIT_RADIUS = 16,
+    TRANSIT_SPEED = 0.8;
 
 /// INSTANCE ATTRIBUTES/METHODS
 function Unit(pos, owner)
@@ -50,7 +51,7 @@ function Unit(pos, owner)
   
   //! POSITION -----------------------------------------------------------------
   o.pos = new V2().setV2(pos);
-  o.setRadius(typ.RADIUS);
+  o.setRadius(UNIT_RADIUS);
   o.dest = new V2().setV2(pos);
   o.dir = new V2();
   o.tile = null;
@@ -195,19 +196,19 @@ function Unit(pos, owner)
     // inbound
     if(o.transit > 0)
     {
-      if(o.radius + typ.TRANSIT_SPEED > typ.RADIUS)
+      if(o.radius + TRANSIT_SPEED > UNIT_RADIUS)
       {
-        o.setRadius(typ.RADIUS);
+        o.setRadius(UNIT_RADIUS);
         o.transit = 0;
         start_idle();
       }
       else
-        o.setRadius(o.radius + typ.TRANSIT_SPEED)
+        o.setRadius(o.radius + TRANSIT_SPEED)
     }
     
     // outbound
     else if(o.transit < 0)
-      o.setRadius(o.radius - typ.TRANSIT_SPEED)
+      o.setRadius(o.radius - TRANSIT_SPEED)
   }
   
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
@@ -243,6 +244,13 @@ function Unit(pos, owner)
     return (o.dir.dot(new V2().setFromTo(o.pos, o.dest)) > 0);
   }
   
+  o.draw_body = function()
+  {
+    context.fillStyle = owner.colour;
+    context.fillCircle(o.pos.x, o.pos.y, o.radius);
+    context.strokeCircle(o.pos.x, o.pos.y, o.radius);
+  }
+  
   o.draw = function()
   {
     context.fillStyle = owner.colour;
@@ -251,24 +259,26 @@ function Unit(pos, owner)
     if(o.owner.id == local_player.id && o.movingToDest())
     {
       context.strokeStyle = owner.colour;
-      context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
       context.fillCircle(o.dest.x, o.dest.y, 6);
+      context.strokeLine(o.pos.x, o.pos.y, o.dest.x, o.dest.y);
     }
     
-    // draw body and full part of energy bar
-    context.fillStyle = owner.colour;
-    context.fillCircle(o.pos.x, o.pos.y, o.radius);
-    context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius * o.energy.getBalance(), 10);
+    // draw full part of energy bar
+    context.fillRect(o.pos.x - o.hradius, o.pos.y + o.radius, 
+                     o.radius * o.energy.getBalance(), 10);
     
     // draw empty part of energy bar
     context.fillStyle = 'white';
     context.fillRect(o.pos.x - o.hradius + o.radius * o.energy.getBalance(), 
                        o.pos.y + o.radius, o.radius * (1 - o.energy.getBalance()), 10);
     
-    // draw body and energy bar outline
+    // draw energy bar outline
     context.strokeStyle = 'black';
-    context.strokeCircle(o.pos.x, o.pos.y, o.radius);
     context.strokeRect(o.pos.x - o.hradius, o.pos.y + o.radius, o.radius, 10);
+    
+    // draw the body
+    o.draw_body();
+
   }
   
   o.collidesPoint = function(p)

@@ -132,6 +132,9 @@ function Game()
     // fat lines
     context.lineWidth = 3;
     
+    // draw portals
+    drawObjects(o.portals);
+    
     // draw a preview of the command
     context.strokeStyle = context.fillStyle = local_player.colour;
     if(o.selected)
@@ -140,8 +143,7 @@ function Game()
       context.fillCircle(mouse.pos.x, mouse.pos.y, 6);
     }
     
-    // draw objects
-    drawObjects(o.portals);
+    // draw units
     drawObjects(o.units);
 
   }
