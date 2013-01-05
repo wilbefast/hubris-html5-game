@@ -22,6 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /** PORTAL LINKING TWO PLAYERS **/
 
+Portal.OPEN_SPEED = 0.6;
+Portal.RADIUS = 32;
+
 /// INSTANCE ATTRIBUTES/METHODS
 function Portal(pos, colour)
 {
@@ -37,11 +40,16 @@ function Portal(pos, colour)
     o.b = y; 
   */
   
+  o.setRadius = function(radius)
+  {
+    o.radius = radius;
+    o.radius1third = o.radius/3;
+    o.radius2thirds = o.radius1third*2;
+    o.radius2 = o.radius * o.radius;
+  }
   o.pos = new V2().setV2(pos);
-  o.radius = 32;
-  o.radius1third = o.radius/3;
-  o.radius2thirds = o.radius1third*2;
-  o.radius2 = o.radius * o.radius;
+  o.setRadius(1);
+
   boundObject(o);
   
   o.colour = colour;
@@ -52,7 +60,22 @@ function Portal(pos, colour)
   
   o.update = function(delta_t)
   {
-    return closed;
+    // become smaller until it disappears
+    if(closed)
+    {
+      o.setRadius(o.radius - typ.OPEN_SPEED * delta_t);
+      if(o.radius < 0)
+        return true;
+    }
+    
+    // become larger until it opens
+    else if(o.radius < typ.RADIUS)
+      o.setRadius(o.radius + typ.OPEN_SPEED * delta_t);
+    else if(o.radius > typ.RADIUS)
+      o.setRadius(typ.RADIUS);
+    
+    // don't destroy the portal for now
+    return false;
   }
   
   o.draw = function()
@@ -66,9 +89,10 @@ function Portal(pos, colour)
   
   o.close = function()
   {
-    console.log("closing " + o.colour + " portal!");
     closed = true;
   }
+  
+  o.collision = function() { /* do nothing */ }
   
   /* INITIALISE AND RETURN INSTANCE */
   return o;

@@ -67,7 +67,7 @@ function Tilegrid()
     return o.grid[Math.floor(pos.y * Tile.ISIZE.y )][Math.floor(pos.x * Tile.ISIZE.x)];
   }
   
-  o.makeBarren = function(object)
+  o.setBarren = function(mask, new_barren_value)
   {
     var tilepos = new V2();
     for(var row = 0; row < o.size.y; row++)
@@ -75,8 +75,8 @@ function Tilegrid()
     {
       tilepos.x = (col + 0.5) * Tile.SIZE.x;
       tilepos.y = (row + 0.5) * Tile.SIZE.y;
-      if(tilepos.dist2(object.pos) < Tile.DIAGONAL2 + object.radius2)
-        o.grid[row][col].barren = true;
+      if(tilepos.dist2(mask.pos) < Tile.DIAGONAL2 + mask.radius2)
+        o.grid[row][col].barren = new_barren_value;
     }
   }
   

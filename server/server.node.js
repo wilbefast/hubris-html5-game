@@ -19,7 +19,7 @@ var fs = require('fs');
 
 var MAX_PLAYERS = 8;
 var players = [];
-var colours = [ 'red', 'green', 'blue', 'magenta', 'aqua', 'yellow', 'purple', 'orange' ];
+var colours = [ 'red', 'green', 'teal', 'magenta', 'aqua', 'yellow', 'purple', 'orange' ];
 colours.sort(function(a,b) { return Math.random() > 0.5; } );
 
 //! ----------------------------------------------------------------------------
@@ -118,7 +118,6 @@ function receiveRequest(request)
     {
       // TODO treat webservice message
       t_log('received message: ' + message.utf8Data);
-      connection.sendUTF(message.utf8Data);
     }
   }
   connection.on('message', receiveMessage);

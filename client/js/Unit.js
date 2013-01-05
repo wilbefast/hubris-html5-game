@@ -26,7 +26,7 @@ Unit.EAT_THRESHOLD_IDLE = 0.5;
 Unit.EAT_THRESHOLD_GOTO = 0.2;
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Unit(pos, radius)
+function Unit(pos, radius, owner)
 {
   /* RECEIVER */
   var o = this, typ = Unit;
@@ -50,6 +50,9 @@ function Unit(pos, radius)
   
   //! RESOURCES ----------------------------------------------------------------
   o.energy = new Bank(0.5, 0, 1);
+  
+  //! OTHER ----------------------------------------------------------------
+  o.deleteMe = false;
   
   //! ARTIFICIAL INTELLIGENCE --------------------------------------------------
   o.wander_timer = new Timer(60);
@@ -185,6 +188,11 @@ function Unit(pos, radius)
   
   o.update = function(delta_t)
   {
+    // remove if delete is requested
+    if(o.deleteMe)
+      return true;
+    
+    
     // RESOURCES -- get hungry
     o.energy.withdraw(typ.STARVE_SPEED * delta_t);
     
@@ -248,10 +256,22 @@ function Unit(pos, radius)
   o.collision = function(other)
   {
     // collision with other units
+    if(other instanceof Unit)
+    {
+      var manifold = new V2().setFromTo(other.pos, o.pos);
+      manifold.normalise();
+      o.pos.addV2(manifold);
+    }
     
-    var manifold = new V2().setFromTo(other.pos, o.pos);
-    manifold.normalise();
-    o.pos.addV2(manifold);
+    // collision with portals
+    else if(other instanceof Portal)
+    {
+      if(o.dest.dist2(other.pos) < other.radius2)
+      {
+        Game.INSTANCE.sendThroughPortal(o, other);
+        o.deleteMe = true;
+      }
+    }
   }
   
   /* INITIALISE AND RETURN INSTANCE */

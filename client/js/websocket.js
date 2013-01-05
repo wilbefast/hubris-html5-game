@@ -50,16 +50,17 @@ function onMessage(message)
   // deal with message
   switch(json.type)
   {
-    case 'colour':
-      local_player.colour = json.data;
+    case 'welcome':
+      local_player.id = json.id;
+      local_player.colour = json.colour;
       break;
       
     case 'open_portal':
-      Game.INSTANCE.openPortal(json.data);
+      Game.INSTANCE.openPortal(json);
       break;
       
     case 'close_portal':
-      Game.INSTANCE.closePortal(json.data);
+      Game.INSTANCE.closePortal(json);
       break;
       
     default:

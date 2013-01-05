@@ -94,6 +94,9 @@ function Game()
     // update objects
     updateObjects(o.units, delta_t, [ generateCollision ], o.grid);
     updateObjects(o.portals, delta_t);
+    
+    // generate collisions between units and portals
+    generateObjectCollisions(o.units, o.portals);
      
     // update grid
     o.grid.update(delta_t);
@@ -141,7 +144,7 @@ function Game()
     o.portals.push(p);
     
     // make the area around it barren
-    o.grid.makeBarren(p);
+    o.grid.setBarren(p, true);
   }
   
   o.closePortal = function(colour)
@@ -150,10 +153,21 @@ function Game()
     {
       if(o.portals[i].colour == colour)
       {
+        // destroy the portal
         o.portals[i].close();
+        
+        // make the area around it fertile again
+        o.grid.setBarren(o.portals[i], false);
+        
         return;
       }
     } 
+  }
+  
+  o.sendThroughPortal = function(unit, portal)
+  {
+    var packet = JSON.stringify(unit);
+    websocket.send("bink");
   }
 
   /* INITIALISE AND RETURN INSTANCE */

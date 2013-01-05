@@ -71,7 +71,7 @@ function generateObjectCollisions(obj_array1, obj_array2)
 {
   for(var i = 0; i < obj_array1.length; i++)
   for(var j = 0; j < obj_array2.length; j++)
-    generateCollision(obj_array1[i], b = obj_array2[j])
+    generateCollision(obj_array1[i], obj_array2[j])
 }
 
 // draw dynamic objects
