@@ -24,7 +24,7 @@ Tile.ISIZE = new V2().setV2(Tile.SIZE).inverse();
 Tile.HSIZE = new V2().setV2(Tile.SIZE).scale(0.5);
 Tile.DIAGONAL2 = Tile.SIZE.x*Tile.SIZE.x + Tile.SIZE.y*Tile.SIZE.y;
 Tile.DIAGONAL = Math.sqrt(Tile.DIAGONAL2);
-Tile.GROW_SPEED = 0.0003;
+Tile.GROW_SPEED = 0.0001;
 Tile.DECAY_SPEED = 0.001;
 
 function resetColour(bank)

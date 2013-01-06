@@ -106,6 +106,8 @@ fs.readFile("./index.html", indexFromData);
 
 function httpService(request, response) 
 {
+  t_log('accepted http request.');
+  
   // hello world
   response.writeHead(200, {"Content-Type": "text/html"});
   response.write(html);
