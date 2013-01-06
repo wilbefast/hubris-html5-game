@@ -236,7 +236,7 @@ function Unit(pos, owner, subtype)
     o.energy.withdraw(typ.STARVE_SPEED * delta_t);
     
     // PHYSICS -- check if crossing boundary or arried at destination
-    if(boundObject(o))
+    if(boundObject(o) && o.transit == 0)
       o.start_idle();
     
     // ARTIFICIAL INTELLIGENCE -- do whatever the state requires

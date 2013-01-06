@@ -71,7 +71,7 @@ function Game()
             if(touched)
             {
               // promote a civillian?
-              if(touched.energy.getBalance() > 0.9)
+              if(touched.energy.getBalance() > 0.75)
               {
                 touched.start_transit(-1);
                 new Warrior(touched.pos, local_player); // auto-stored

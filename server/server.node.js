@@ -10,7 +10,6 @@ process.title = 'nodejs-gameserver';
 
 var WebSocketServer = require('websocket').server;
 var http = require('http');
-var fs = require('fs');
 
 
 //! ----------------------------------------------------------------------------
@@ -87,20 +86,6 @@ function broadcast(message, sender)
 
 
 //! ----------------------------------------------------------------------------
-//! LOAD INDEX HTML
-//! ----------------------------------------------------------------------------
-
-var html;
-function indexFromData(err, data)
-{
-  if (err) 
-    throw err; 
-  else
-    html = data;
-}
-fs.readFile("./index.html", indexFromData);
-
-//! ----------------------------------------------------------------------------
 //! LAUNCH HTTP SERVER
 //! ----------------------------------------------------------------------------
 
@@ -109,8 +94,8 @@ function httpService(request, response)
   t_log('accepted http request.');
   
   // hello world
-  response.writeHead(200, {"Content-Type": "text/html"});
-  response.write(html);
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.write("\'Hubris\' game-server is online");
   response.end();
 }
 

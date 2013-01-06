@@ -146,7 +146,10 @@ function Warrior(pos, owner)
     
     // attack the enemy
     else
+    {
       o.target.energy.withdraw(typ.ATTACK_DAMAGE * delta_t);
+      o.underAttack = true;
+    }
   }
   
   // OVERIDES
