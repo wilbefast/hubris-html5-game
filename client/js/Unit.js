@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 "use strict";
 
-Unit.STARVE_SPEED = 0.001;
+Unit.STARVE_SPEED = 0.0005;
 Unit.EAT_SPEED = 0.003;
-Unit.EAT_THRESHOLD_IDLE = 0.8;
+Unit.EAT_THRESHOLD_IDLE = 1;
 Unit.EAT_THRESHOLD_GOTO = 0.2;
 Unit.SPAWN_ENERGY = 0.1;
 
@@ -182,7 +182,7 @@ function Unit(pos, owner, subtype)
       o.start_harvest();
     
     // recalculate direction if going the wrong way
-    else if(!o.movingToDest())
+    else if(!o.movingTo(o.dest))
       start_goto(o.dest);
 
     // continue to destination
@@ -202,9 +202,9 @@ function Unit(pos, owner, subtype)
         o.transit = 0;
         
         // move to random position if foreign
-        if(o.owner.id != local_player.id)
+        /*if(o.owner.id != local_player.id)
           start_goto(random_position());
-        else
+        else*/
           o.start_idle();
       }
       else
@@ -249,9 +249,9 @@ function Unit(pos, owner, subtype)
     return (o.radius < 0);
   }
   
-  o.movingToDest = function()
+  o.movingTo = function(dest)
   {
-    return (o.dir.dot(new V2().setFromTo(o.pos, o.dest)) > 0);
+    return (o.dir.dot(new V2().setFromTo(o.pos, dest)) > 0);
   }
   
   o.draw_body = function()
@@ -266,7 +266,7 @@ function Unit(pos, owner, subtype)
     context.fillStyle = owner.colour;
     
     // draw direction only if friendly
-    if(o.owner.id == local_player.id && o.movingToDest())
+    if(o.owner.id == local_player.id && o.movingTo(o.dest))
     {
       context.strokeStyle = owner.colour;
       context.fillCircle(o.dest.x, o.dest.y, 6);
@@ -323,7 +323,8 @@ function Unit(pos, owner, subtype)
     // collision with portals
     else if(other instanceof Portal)
     {
-      if(o.dest.dist2(other.pos) < other.radius2 
+      if(o.owner.id == local_player.id
+        && o.dest.dist2(other.pos) < other.radius2 
         && o.transit == 0 
         && o.energy.getBalance() > typ.EAT_THRESHOLD_GOTO)
       {

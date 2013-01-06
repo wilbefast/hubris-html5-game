@@ -66,12 +66,16 @@ function generateCollision(a, b)
   }
 }
 
-// generate collisions between two arrays of dynamic objects
-function generateObjectCollisions(obj_array1, obj_array2)
+function tweenObjects(obj_array1, obj_array2, tween_functions)
 {
   for(var i = 0; i < obj_array1.length; i++)
   for(var j = 0; j < obj_array2.length; j++)
-    generateCollision(obj_array1[i], obj_array2[j])
+  {
+    var a = obj_array1[i], b = obj_array2[j];
+    // perform each "tween" function on each pair of objects
+    if(a && b) for(var f = 0; f < tween_functions.length; f++)
+      tween_functions[f](a, b);
+  }
 }
 
 // draw dynamic objects

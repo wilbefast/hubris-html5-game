@@ -20,17 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 "use strict";
 
-Warrior.STARVE_SPEED = 0.003;
-Warrior.EAT_SPEED = 0.04;
+Warrior.STARVE_SPEED = 0.0005;
+Warrior.EAT_SPEED = 0.02;
 Warrior.EAT_THRESHOLD_IDLE = 0.5;
 Warrior.EAT_THRESHOLD_GOTO = 0.2;
 Warrior.EAT_THRESHOLD_FLEE = 0.1;
 Warrior.SPAWN_ENERGY = 0.5;
 Warrior.RANGE = 100;
+Warrior.RANGE2 = Warrior.RANGE * Warrior.RANGE;
 Warrior.MIN_ATTACK_DIST = Warrior.RANGE*2;
 Warrior.MIN_ATTACK_DIST2 = Warrior.MIN_ATTACK_DIST * Warrior.MIN_ATTACK_DIST;
 
-Warrior.ATTACK_DAMAGE = 0.07;
+Warrior.ATTACK_DAMAGE = 0.01;
 
 Warrior.objects = [];
 
@@ -115,7 +116,7 @@ function Warrior(pos, owner)
       o.stop_attack();
     
     // stop in range
-    else if(o.pos.dist2(o.dest) < typ.MIN_ATTACK_DIST2)
+    else if(o.pos.dist2(o.target.pos) <= typ.RANGE2)
       o.start_attack();
     
     // stop if too hungry or injured
@@ -123,8 +124,8 @@ function Warrior(pos, owner)
       o.start_harvest();
     
     // recalculate direction if going the wrong way
-    else if(!o.movingToDest())
-      start_goto(o.dest);
+    else if(!o.movingTo(o.target.pos))
+      o.start_hunt(o.dest);
 
     // continue to destination
     else
@@ -136,7 +137,7 @@ function Warrior(pos, owner)
     // ATTACK
     
     // stop if target is invalid
-    if(!o.canTarget(o.target))
+    if(!o.canTarget(o.target) || o.pos.dist2(o.dest) > typ.RANGE2)
       o.stop_attack();
     
     // stop if too hungry or injured
@@ -159,7 +160,7 @@ function Warrior(pos, owner)
       o.start_harvest();
     
     // acquire target
-    else if(o.target && o.target_dist2 < typ.MIN_ATTACK_DIST2)
+    else if(o.target && (o.owner.id != local_player.id || o.target_dist2 < typ.MIN_ATTACK_DIST2))
       o.start_hunt();
   }
   
@@ -214,4 +215,9 @@ Warrior.acquireTargets = function(a, b)
 {
   a.acquireTarget(b);
   b.acquireTarget(a);
+}
+
+Warrior.acquireTargetsOneWay = function(src, dest)
+{
+  src.acquireTarget(dest);
 }

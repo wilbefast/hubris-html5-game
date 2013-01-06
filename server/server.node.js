@@ -115,7 +115,7 @@ function httpService(request, response)
 }
 
 var httpServer = http.createServer(httpService);
-httpServer.listen(1337);
+httpServer.listen(8000);
 
 
 //! ----------------------------------------------------------------------------

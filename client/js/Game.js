@@ -56,7 +56,7 @@ function Game()
         switch(event.button)
         {
           case 0: // left
-            // select a warriro?
+            // select a warrior?
             o.selected = getObjectAt(mouse.pos, Warrior.objects, isMine);
             
             // select a civillian?
@@ -67,20 +67,29 @@ function Game()
             
             
           case 2: // right
-            var promote = getObjectAt(mouse.pos, Unit.objects, isMine);
-            if(promote)
+            var touched = getObjectAt(mouse.pos, Unit.objects, isMine);
+            if(touched)
             {
               // promote a civillian?
-              if(promote.energy.getBalance() > 0.7)
+              if(touched.energy.getBalance() > 0.9)
               {
-                promote.start_transit(-1);
-                new Warrior(promote.pos, local_player); // auto-allocated
+                touched.start_transit(-1);
+                new Warrior(touched.pos, local_player); // auto-stored
               }
             }
             
-            // create a civillian?
             else
-              new Unit(mouse.pos, local_player); // auto-allocated
+            {
+              touched = getObjectAt(mouse.pos, Warrior.objects, isMine);
+              
+              // delete a warrior?
+              if(touched)
+                touched.start_transit(-1);
+              
+              // create a civillian?
+              else
+                new Unit(mouse.pos, local_player); // auto-stored
+            }
             break;
         }
         break;
@@ -124,7 +133,10 @@ function Game()
     updateObjects(o.portals, delta_t);
     
     // generate collisions between units and portals
-    generateObjectCollisions(Warrior.objects, o.portals);
+    tweenObjects(Warrior.objects, o.portals, [ generateCollision ]);
+    
+    // acquire civillian targets too
+    tweenObjects(Warrior.objects, Unit.objects, [ Warrior.acquireTargetsOneWay ]);
      
     // update grid
     o.grid.update(delta_t);
@@ -201,6 +213,7 @@ function Game()
   {
     var p = o.idToPortal(packet.src),
         u = new window[packet.class](p.pos, p.owner);
+    u.energy.setBalance(packet.energy);
     u.arrive();
   }
   
