@@ -21,15 +21,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "use strict";
 
 Warrior.STARVE_SPEED = 0.0005;
-Warrior.EAT_SPEED = 0.02;
+Warrior.EAT_SPEED = 0.01;
 Warrior.EAT_THRESHOLD_IDLE = 0.5;
 Warrior.EAT_THRESHOLD_GOTO = 0.2;
 Warrior.EAT_THRESHOLD_FLEE = 0.1;
-Warrior.SPAWN_ENERGY = 0.5;
+Warrior.ENERGY_PER_FOOD = 0.25;
+Warrior.ENERGY_TO_TRANSFORM = 0.5;
+Warrior.SPAWN_ENERGY = 0.25;
 Warrior.RANGE = 100;
 Warrior.RANGE2 = Warrior.RANGE * Warrior.RANGE;
 Warrior.MIN_ATTACK_DIST = Warrior.RANGE*2;
 Warrior.MIN_ATTACK_DIST2 = Warrior.MIN_ATTACK_DIST * Warrior.MIN_ATTACK_DIST;
+Warrior.DAMAGE_FROM_ATTACK = 1;
 
 Warrior.ATTACK_DAMAGE = 0.01;
 
@@ -95,6 +98,7 @@ function Warrior(pos, owner)
     {
       o.dir.setFromTo(o.pos, o.target.pos).normalise();
       o.state = o.hunt;
+      o.state_name = "hunting";
     }
     // break off attack
     else
@@ -105,6 +109,7 @@ function Warrior(pos, owner)
   {
     o.attacking = true;
     o.state = o.attack;
+    o.state_name = "attacking";
   }
   
   o.hunt = function(delta_t)
@@ -146,10 +151,7 @@ function Warrior(pos, owner)
     
     // attack the enemy
     else
-    {
-      o.target.energy.withdraw(typ.ATTACK_DAMAGE * delta_t);
-      o.underAttack = true;
-    }
+      o.target.takeDamage(typ.ATTACK_DAMAGE * delta_t);
   }
   
   // OVERIDES
@@ -201,9 +203,9 @@ function Warrior(pos, owner)
     // DRAW BODY
     
     context.beginPath();
-    context.moveTo(o.pos.x - o.radius, o.pos.y + o.radius - 3);
-    context.lineTo(o.pos.x, o.pos.y - o.radius);
-    context.lineTo(o.pos.x + o.radius, o.pos.y + o.radius - 3);
+    context.moveTo(o.pos.x - o.hradius, o.pos.y + o.hradius);
+    context.lineTo(o.pos.x, o.pos.y - o.hradius);
+    context.lineTo(o.pos.x + o.hradius, o.pos.y + o.hradius);
     context.closePath();
     context.fill(); 
     context.stroke();

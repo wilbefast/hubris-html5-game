@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // MULTIPLAYER
 var local_player =
 {
-  colour : 'white'
+  colour : 'red'//'white'
 };
 
 // TIMING

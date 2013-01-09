@@ -40,6 +40,8 @@ function Game()
   
   o.portals = [];
   o.selected = null;
+  
+  new Unit(new V2(canvas.width * 0.5, canvas.height * 0.5), local_player);
     
   /* PRIVATE METHODS */
   
@@ -71,10 +73,12 @@ function Game()
             if(touched)
             {
               // promote a civillian?
-              if(touched.energy.getBalance() > 0.75)
+              if(touched.energy.getBalance() > Unit.ENERGY_TO_TRANSFORM)
               {
                 touched.start_transit(-1);
-                new Warrior(touched.pos, local_player); // auto-stored
+                var w = new Warrior(touched.pos, local_player); // auto-stored
+                w.energy.deposit((touched.energy.getBalance() - Unit.ENERGY_TO_TRANSFORM) * 0.5);
+                
               }
             }
             
@@ -84,11 +88,14 @@ function Game()
               
               // delete a warrior?
               if(touched)
+              {
                 touched.start_transit(-1);
-              
-              // create a civillian?
-              else
-                new Unit(mouse.pos, local_player); // auto-stored
+                var u1 = new Unit(touched.pos, local_player),
+                    u2 = new Unit(touched.pos, local_player),
+                    bonus = (touched.energy.getBalance() - Warrior.ENERGY_TO_TRANSFORM);
+                u1.energy.deposit(bonus);
+                u2.energy.deposit(bonus);
+              }
             }
             break;
         }
@@ -136,7 +143,8 @@ function Game()
     tweenObjects(Warrior.objects, o.portals, [ generateCollision ]);
     
     // acquire civillian targets too
-    tweenObjects(Warrior.objects, Unit.objects, [ Warrior.acquireTargetsOneWay ]);
+    tweenObjects(Warrior.objects, Unit.objects, [ generateCollision, 
+                                                  Warrior.acquireTargetsOneWay ]);
      
     // update grid
     o.grid.update(delta_t);
