@@ -129,8 +129,8 @@ canvas.onmousedown = function(event)
   // reset position
   mouse.pos.setXY(event.offsetX, event.offsetY);
   // reset button state
-  mouse.prev[event.which] = mouse.held[event.which];
-  mouse.held[event.which] = true;
+  mouse.prev[event.which-1] = mouse.held[event.which-1];
+  mouse.held[event.which-1] = true;
   
   // save event
   input_events.push(event);
@@ -148,8 +148,8 @@ canvas.onmouseup = function(event)
   //--mouse.pos.setXY(event.pageX - canvas.offset.x, event.pageY - canvas.offset.y);
   mouse.pos.setXY(event.offsetX, event.offsetY);
   // reset button state
-  mouse.prev[event.which] = mouse.held[event.which];
-  mouse.held[event.which] = false;
+  mouse.prev[event.which-1] = mouse.held[event.which-1];
+  mouse.held[event.which-1] = false;
   // save event
   input_events.push(event);
   // don't act on elements below

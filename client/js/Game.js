@@ -41,7 +41,11 @@ function Game()
   o.portals = [];
   o.selected = null;
   
+  // create one unit for the local player
   new Unit(new V2(canvas.width * 0.5, canvas.height * 0.5), local_player);
+  
+  // create selection box
+  o.selection_box = new Rect();
     
   /* PRIVATE METHODS */
   
@@ -58,6 +62,9 @@ function Game()
         switch(event.button)
         {
           case 0: // left
+            
+            o.selection_box.moveTo(mouse.pos.x, mouse.pos.y);
+            
             // select a warrior?
             o.selected = getObjectAt(mouse.pos, Warrior.objects, isMine);
             
@@ -157,6 +164,10 @@ function Game()
       treatEvent(event);
     }
     while(event = poll_input_event());
+    
+    // modify selection box
+    if(mouse.held[mouse.LEFT])
+      o.selection_box.endAt(mouse.pos.x, mouse.pos.y);
   }
  
   o.injectDraw = function()
@@ -190,6 +201,8 @@ function Game()
     drawObjects(Warrior.objects);
     drawObjects(Unit.objects);
 
+    // draw selection box
+    o.selection_box.draw();
   }
   
   o.idToPortal = function(id)

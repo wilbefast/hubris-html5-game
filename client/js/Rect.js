@@ -21,32 +21,60 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "use strict";
 
 /// INSTANCE ATTRIBUTES/METHODS
-function Rect(x, y, w, h)
+function Rect(x_, y_, w_, h_)
 {
-  /* RECEIVER */
-  var o = this, typ = Rect;
-  
-  /* PRIVATE ATTRIBUTES 
-    var a = x; 
-  */
-  
-  /* PUBLIC ATTRIBUTES 
-    o.b = y; 
-  */
-  o.x = (x || 0);
-  o.y = (y || 0);
-  o.w = (w || 0);
-  o.h = (h || 0);
-  
-  
-  /* PRIVATE METHODS 
-  var f = function(p1, ... ) { } 
-  */
-    
-  /* PUBLIC METHODS 
-  (o.f = function(p1, ... ) { }
-  */
-  
-  /* INITIALISE AND RETURN INSTANCE */
-  return o;
+  this.x = (x_ || 0);
+  this.y = (y_ || 0);
+  this.w = (w_ || 0);
+  this.h = (h_ || 0);
+
+  return this;
+}
+
+Rect.prototype.startAt = function(x_, y_)
+{
+  var dx = this.x - x_, 
+      dy = this.y - y_;
+  this.x = x_;
+  this.y = y_;
+  this.w += dx;
+  this.h += dy;
+  return this;
+}
+
+Rect.prototype.endAt = function(x_, y_)
+{
+  this.w = x_ - this.x;
+  this.h = y_ - this.y;
+  return this;
+}
+
+Rect.prototype.moveTo = function(x_, y_)
+{
+  this.x = x_;
+  this.y = y_;
+}
+
+Rect.prototype.positive = function()
+{
+  if(this.w < 0)
+  {
+    this.w *= -1;
+    this.x -= this.w;
+  }
+  if(this.h < 0)
+  {
+    this.h *= -1;
+    this.y -= this.h;
+  }
+  return this;
+}
+
+Rect.prototype.draw = function(fill)
+{
+  if(fill)
+    context.fillRect(this.x, this.y, this.w, this.h);
+  else
+    context.strokeRect(this.x, this.y, this.w, this.h);
+  return this;
 }
