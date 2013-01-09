@@ -171,7 +171,6 @@ function Warrior(pos, owner)
   
   o.draw_body = function()
   {
-    context.fillStyle = owner.colour;
     context.strokeStyle = 'white';
     
     // SHOOT TARGET
@@ -198,10 +197,10 @@ function Warrior(pos, owner)
                     o.radius, o.radius);
     }
     
-    context.strokeStyle = 'black';
+    
+    context.strokeStyle = (o.selected) ? 'white' : 'black'
     
     // DRAW BODY
-    
     context.beginPath();
     context.moveTo(o.pos.x - o.hradius, o.pos.y + o.hradius);
     context.lineTo(o.pos.x, o.pos.y - o.hradius);

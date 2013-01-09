@@ -39,13 +39,13 @@ function Game()
   o.grid = new Tilegrid(new V2(32, 32));
   
   o.portals = [];
-  o.selected = null;
   
   // create one unit for the local player
   new Unit(new V2(canvas.width * 0.5, canvas.height * 0.5), local_player);
   
   // create selection box
   o.selection_box = new Rect();
+  o.selected = [];
     
   /* PRIVATE METHODS */
   
@@ -63,19 +63,23 @@ function Game()
         {
           case 0: // left
             
+            // move selection box
             o.selection_box.moveTo(mouse.pos.x, mouse.pos.y);
             
             // select a warrior?
-            o.selected = getObjectAt(mouse.pos, Warrior.objects, isMine);
+            /*var touched = getObjectAt(mouse.pos, Warrior.objects, isMine);
             
             // select a civillian?
-            if(!o.selected)
-              o.selected = getObjectAt(mouse.pos, Unit.objects, isMine);
+            if(!touched)
+              touched = getObjectAt(mouse.pos, Unit.objects, isMine);*/
             break;
             
             
             
           case 2: // right
+            
+            
+            /* PROMOTE A CIVILLIAN */
             var touched = getObjectAt(mouse.pos, Unit.objects, isMine);
             if(touched)
             {
@@ -89,10 +93,9 @@ function Game()
               }
             }
             
-            else
+            /* SPLIT A WARRIOR */
+            else if(touched = getObjectAt(mouse.pos, Warrior.objects, isMine))
             {
-              touched = getObjectAt(mouse.pos, Warrior.objects, isMine);
-              
               // delete a warrior?
               if(touched)
               {
@@ -104,6 +107,15 @@ function Game()
                 u2.energy.deposit(bonus);
               }
             }
+            
+            /* ISSUE AN ORDER */
+            else
+            {
+              // tell all selected units to move
+              for(var i = 0; i < o.selected.length; i++)
+                o.selected[i].goto(mouse.pos);
+            }
+            
             break;
         }
         break;
@@ -112,12 +124,65 @@ function Game()
         switch(event.button)
         {
           case 0:
-            if(o.selected)
+            /*if(o.selected)
             {
               o.selected.goto(mouse.pos);
               o.selected = null;
+            }*/
+            
+            // deselect previous units
+            for(var i = 0; i < o.selected.length; i++) if(o.selected[i])
+              o.selected[i].selected = false;
+            o.selected.shift(o.selected.length);
+            
+            // calculate selection area
+            o.selection_box.positive();
+            
+            // drag-selection?
+            if(o.selection_box.w != 0 || o.selection_box.h != 0)
+            {
+              for(var i = 0; i < Unit.objects.length; i++)
+              {
+                var u = Unit.objects[i];
+                if(u && insideBox(u, o.selection_box))
+                {
+                  u.selected = true;
+                  o.selected.push(u);
+                }
+              }
+              
+              for(var i = 0; i < Warrior.objects.length; i++)
+              {
+                var w = Warrior.objects[i];
+                if(w && insideBox(w, o.selection_box))
+                {
+                  w.selected = true;
+                  o.selected.push(w);
+                }
+              }
+              
+              o.selection_box.collapse();
             }
+            // click-unclick?
+            else
+            {
+              var touched = getObjectAt(mouse.pos, Warrior.objects, isMine)
+              if(touched)
+              {
+                touched.selected = true;
+                o.selected.push(touched);
+              }
+              else if(touched = getObjectAt(mouse.pos, Unit.objects, isMine))
+              {
+                touched.selected = true;
+                o.selected.push(touched);
+              }
+            }
+            
             break;
+            
+            
+            
           case 1:
             break;
         }
@@ -190,19 +255,20 @@ function Game()
     drawObjects(o.portals);
     
     // draw a preview of the command
-    context.strokeStyle = context.fillStyle = local_player.colour;
+    /*context.strokeStyle = context.fillStyle = local_player.colour;
     if(o.selected)
     {
       context.strokeLine(o.selected.pos.x, o.selected.pos.y, mouse.pos.x, mouse.pos.y);
       context.fillCircle(mouse.pos.x, mouse.pos.y, 6);
-    }
+    }*/
     
     // draw units
     drawObjects(Warrior.objects);
     drawObjects(Unit.objects);
 
     // draw selection box
-    o.selection_box.draw();
+    context.strokeStyle = local_player.colour;
+    o.selection_box.draw(false);
   }
   
   o.idToPortal = function(id)

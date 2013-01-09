@@ -98,7 +98,7 @@ function updateObjects(obj_array, delta_t, tween_functions, scenegraph)
   {
     var a = obj_array[i];
     // update objects, save update result
-    var deleteThing = (a == null || a.update(delta_t));
+    var deleteThing = (a == null || a.purge || a.update(delta_t));
     // delete object if the update returns true
     if(deleteThing)
     {
@@ -108,21 +108,24 @@ function updateObjects(obj_array, delta_t, tween_functions, scenegraph)
       continue;
     }
     
-    // perform each "tween" function on each pair of objects
-    if(tween_functions) for(var f = 0; f < tween_functions.length; f++)
+    else 
     {
-      // for instance, generate collision events between objects if requested
-      for(var j = i+1; j < obj_array.length; j++)
+      // perform each "tween" function on each pair of objects
+      if(tween_functions) for(var f = 0; f < tween_functions.length; f++)
       {
-        var b = obj_array[j];
-        if (b != null)
-          tween_functions[f](a, b);
+        // for instance, generate collision events between objects if requested
+        for(var j = i+1; j < obj_array.length; j++)
+        {
+          var b = obj_array[j];
+          if (b != null)
+            tween_functions[f](a, b);
+        }
       }
+      
+      // allocate positions in the scenegraph
+      if(scenegraph)
+        a.setSceneNode(scenegraph.getSceneNode(a.pos));
     }
-    
-    // allocate positions in the scenegraph
-    if(scenegraph)
-      a.setSceneNode(scenegraph.getSceneNode(a.pos));
   }
   // delete the indices in the cleanup list
   for(var i = 0; i < cleanUp.length; i++)
@@ -139,4 +142,9 @@ function getObjectAt(pos, obj_array, condition)
       return object;   
   }
   return null;
+}
+
+function insideBox(unit, box)
+{
+  return box.collides(new Rect(unit.pos.x - unit.hradius, unit.pos.y - unit.hradius, unit.radius, unit.radius));
 }

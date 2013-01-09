@@ -68,6 +68,7 @@ function Unit(pos, owner, subtype)
   
   //! OTHER ----------------------------------------------------------------
   o.owner = owner;
+  o.selected = false;
   
   /* PRIVATE METHODS 
   var f = function(p1, ... ) { } 
@@ -283,7 +284,6 @@ function Unit(pos, owner, subtype)
   
   o.draw_body = function()
   {
-    context.fillStyle = owner.colour;
     context.fillRect(o.pos.x - o.hradius, o.pos.y - o.hradius, o.radius, o.radius);
     context.strokeRect(o.pos.x - o.hradius, o.pos.y - o.hradius, o.radius, o.radius);
     //context.fillCircle(o.pos.x, o.pos.y, o.radius);
@@ -295,7 +295,7 @@ function Unit(pos, owner, subtype)
     context.fillStyle = owner.colour;
     
     // draw direction only if friendly
-    if(o.owner.id == local_player.id && o.state_name == "going")
+    if(o.owner.id == local_player.id && o.selected && o.transit == 0)
     {
       context.strokeStyle = owner.colour;
       context.fillCircle(o.dest.x, o.dest.y, 6);
@@ -303,7 +303,7 @@ function Unit(pos, owner, subtype)
     }
     
     // draw full part of energy bar
-    if(o.energy.getBalance() < typ.ENERGY_TO_TRANSFORM)
+    if(o.energy.getBalance() >= typ.ENERGY_TO_TRANSFORM)
       context.fillStyle = 'white';
     context.fillRect(o.pos.x - o.hradius, 
                      o.pos.y + o.hradius + 6, 
@@ -325,6 +325,8 @@ function Unit(pos, owner, subtype)
                        o.hradius);
     
     // draw the body
+    context.fillStyle = owner.colour;
+    context.strokeStyle = (o.selected) ? 'white' : 'black'
     o.draw_body();
 
   }

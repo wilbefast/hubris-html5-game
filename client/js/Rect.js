@@ -55,6 +55,30 @@ Rect.prototype.moveTo = function(x_, y_)
   this.y = y_;
 }
 
+Rect.prototype.endx = function()
+{
+  return this.x + this.w;
+}
+
+Rect.prototype.endy = function()
+{
+  return this.y + this.h;
+}
+
+Rect.prototype.collides = function(other)
+{
+  var v1x = other.endx() - this.x, 
+      v2x = this.endx() - other.x;
+  if(v1x < 0 && v2x >= 0 || v1x > 0 && v2x <= 0)
+    return false;
+  
+  var v1y = other.endy() - this.y, 
+      v2y = this.endy() - other.y;
+  if(v1y < 0 && v2y >= 0 || v1y > 0 && v2y <= 0)
+    return false;   
+  return true;
+}
+
 Rect.prototype.positive = function()
 {
   if(this.w < 0)
@@ -76,5 +100,11 @@ Rect.prototype.draw = function(fill)
     context.fillRect(this.x, this.y, this.w, this.h);
   else
     context.strokeRect(this.x, this.y, this.w, this.h);
+  return this;
+}
+
+Rect.prototype.collapse = function()
+{
+  this.x = this.y = this.w = this.h = 0;
   return this;
 }
