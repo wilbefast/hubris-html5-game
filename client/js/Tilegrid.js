@@ -61,11 +61,19 @@ function Tilegrid()
     for(var col = 0; col < o.size.x; col++)
       o.grid[row][col].draw();
   }
+    
+  o.isValid = function(row, col)
+  {
+    return (row >= 0 && row < o.size.y && col >= 0 && col < o.size.x);
+  }
   
   o.getSceneNode = function(pos)
   {
-    return o.grid[Math.floor(pos.y * Tile.ISIZE.y )][Math.floor(pos.x * Tile.ISIZE.x)];
+    var row = Math.floor(pos.y * Tile.ISIZE.y),
+        col = Math.floor(pos.x * Tile.ISIZE.x);
+    return (o.isValid(row, col) ? o.grid[row][col] : null);
   }
+
   
   o.setBarren = function(mask, new_barren_value)
   {

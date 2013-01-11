@@ -54,6 +54,28 @@ function Game()
     return o.owner.id == local_player.id;
   }
   
+  var setUnitSelection = function(u, doSelect)
+  {
+    if(!u || !isMine(u))
+      return;
+    
+    if(doSelect)
+    {
+      o.selected.push(u);
+      u.selected = true;
+    }
+    else
+    {
+      u.selected = false;
+      for(var i = 0; i < o.selected.length; i++)
+      if(o.selected[i] == u)
+      {
+        o.selected.splice(i, 1);
+        break;
+      }    
+    }
+  }
+  
   var treatEvent = function(event)
   {
     switch(event.type)
@@ -62,17 +84,9 @@ function Game()
         switch(event.button)
         {
           case 0: // left
-            
             // move selection box
             o.selection_box.moveTo(mouse.pos.x, mouse.pos.y);
-            
-            // select a warrior?
-            /*var touched = getObjectAt(mouse.pos, Warrior.objects, isMine);
-            
-            // select a civillian?
-            if(!touched)
-              touched = getObjectAt(mouse.pos, Unit.objects, isMine);*/
-            break;
+          break;
             
             
             
@@ -89,7 +103,9 @@ function Game()
                 touched.start_transit(-1);
                 var w = new Warrior(touched.pos, local_player); // auto-stored
                 w.energy.deposit((touched.energy.getBalance() - Unit.ENERGY_TO_TRANSFORM) * 0.5);
-                
+                // move to parent's destination
+                if(!touched.arrived)
+                  w.goto(touched.dest);
               }
             }
             
@@ -97,7 +113,7 @@ function Game()
             else if(touched = getObjectAt(mouse.pos, Warrior.objects, isMine))
             {
               // delete a warrior?
-              if(touched)
+              if(touched && touched.energy.getBalance() > Warrior.ENERGY_TO_TRANSFORM)
               {
                 touched.start_transit(-1);
                 var u1 = new Unit(touched.pos, local_player),
@@ -105,6 +121,12 @@ function Game()
                     bonus = (touched.energy.getBalance() - Warrior.ENERGY_TO_TRANSFORM);
                 u1.energy.deposit(bonus);
                 u2.energy.deposit(bonus);
+                // move to parent's destination
+                if(!(touched.arrived))
+                {
+                  u1.goto(touched.dest);
+                  u2.goto(touched.dest);
+                }
               }
             }
             
@@ -114,6 +136,18 @@ function Game()
               // tell all selected units to move
               for(var i = 0; i < o.selected.length; i++)
                 o.selected[i].goto(mouse.pos);
+              
+              
+              
+                            
+              if(keyboard.space)
+              {
+                new Warrior(mouse.pos, ai_player);
+              }
+              else if(keyboard.enter)
+              {
+                new Warrior(mouse.pos, local_player);
+              }
             }
             
             break;
@@ -123,42 +157,43 @@ function Game()
       case "mouseup":
         switch(event.button)
         {
-          case 0:
-            /*if(o.selected)
-            {
-              o.selected.goto(mouse.pos);
-              o.selected = null;
-            }*/
-            
-            // deselect previous units
-            for(var i = 0; i < o.selected.length; i++) if(o.selected[i])
-              o.selected[i].selected = false;
-            o.selected.shift(o.selected.length);
+          case 0: // left
             
             // calculate selection area
             o.selection_box.positive();
             
-            // drag-selection?
-            if(o.selection_box.w != 0 || o.selection_box.h != 0)
+            var touched_warrior = getObjectAt(mouse.pos, Warrior.objects, isMine),
+                touched_civillian = getObjectAt(mouse.pos, Unit.objects, isMine);
+            
+            // deselect previous units
+            if(!keyboard.shift)
             {
+              for(var i = 0; i < o.selected.length; i++) 
+              {
+                var u = o.selected[i];
+                if(u && u != touched_civillian && u != touched_warrior)
+                  o.selected[i].selected = false;
+              }
+              o.selected.splice(0, o.selected.length);
+            }
+            
+            // drag-selection?
+            if(o.selection_box.w > 5 || o.selection_box.h > 5)
+            { 
+              // select Civillians
               for(var i = 0; i < Unit.objects.length; i++)
               {
                 var u = Unit.objects[i];
                 if(u && insideBox(u, o.selection_box))
-                {
-                  u.selected = true;
-                  o.selected.push(u);
-                }
+                  setUnitSelection(u, !(u.selected));
               }
               
+              // select Warriors
               for(var i = 0; i < Warrior.objects.length; i++)
               {
                 var w = Warrior.objects[i];
                 if(w && insideBox(w, o.selection_box))
-                {
-                  w.selected = true;
-                  o.selected.push(w);
-                }
+                  setUnitSelection(w, !(w.selected));
               }
               
               o.selection_box.collapse();
@@ -166,24 +201,17 @@ function Game()
             // click-unclick?
             else
             {
-              var touched = getObjectAt(mouse.pos, Warrior.objects, isMine)
-              if(touched)
-              {
-                touched.selected = true;
-                o.selected.push(touched);
-              }
-              else if(touched = getObjectAt(mouse.pos, Unit.objects, isMine))
-              {
-                touched.selected = true;
-                o.selected.push(touched);
-              }
+              if(touched_civillian)
+                setUnitSelection(touched_civillian, !(touched_civillian.selected));
+              if(touched_warrior)
+                setUnitSelection(touched_warrior, !(touched_warrior.selected));
             }
             
             break;
             
             
             
-          case 1:
+          case 1: // right
             break;
         }
         break;
@@ -281,9 +309,25 @@ function Game()
   
   o.openPortal = function(player)
   {
+    // randomise portal positions
+    var aSide = (Math.random() < 0.5), 
+        bSide = (Math.random() < 0.5),
+        amount = Math.random() * (aSide ? canvas.width : canvas.height),
+        pos = new V2();
+        
+    // left / right
+    if(aSide)
+      pos.setXY(amount, (bSide ? 0 : canvas.height));
+    // top / bottom
+    else
+      pos.setXY((bSide ? 0 : canvas.width), amount);
+    
     // create the portal
-    var p = new Portal(random_position(), player);
+    var p = new Portal(pos, player);
     o.portals.push(p);
+    
+    // stop portal collisions
+    tweenObjects(o.portals, o.portals, [ generateCollision ]);
     
     // make the area around it barren
     o.grid.setBarren(p, true);

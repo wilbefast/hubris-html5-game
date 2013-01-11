@@ -22,12 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Unit.STARVE_SPEED = 0.0005;
 Unit.EAT_SPEED = 0.003;
-Unit.EAT_THRESHOLD_IDLE = 0.9;
-Unit.EAT_THRESHOLD_GOTO = 0.2;
+Unit.COMFORTABLE_ENERGY = 0.9;
+Unit.CRITICAL_ENERGY = 0.2;
 Unit.ENERGY_PER_FOOD = 0.5;
 Unit.ENERGY_TO_TRANSFORM = 0.75;
 Unit.SPAWN_ENERGY = 0.1;
-Unit.DAMAGE_FROM_ATTACK = 2;
+Unit.DAMAGE_FROM_ATTACK = 1;
 
 Unit.objects = [];
 
@@ -70,14 +70,16 @@ function Unit(pos, owner, subtype)
   o.owner = owner;
   o.selected = false;
   
-  /* PRIVATE METHODS 
-  var f = function(p1, ... ) { } 
-  */
+  o.clean_state = function()
+  {
+    o.arrived = true;
+    o.dest.setV2(o.pos);
+    o.dir.setXY(0, 0);
+  }
     
   o.start_idle = function()
   {
-    o.dest.setV2(o.pos);
-    o.dir.setXY(0, 0);
+    o.clean_state();
     o.state = o.idle;
     o.state_name = "idling";
   }
@@ -106,16 +108,18 @@ function Unit(pos, owner, subtype)
       o.dir.setFromTo(o.pos, o.dest).normalise();
       o.state = goto;
       o.state_name = "going";
+      o.arrived = false;
     }
     // cancel if we've already arrived
     else
       o.start_idle();
   }
   
-  var start_flee = function(away_from)
+  o.start_flee = function(away_from)
   {
+    o.clean_state();
     o.wander_timer.reset();
-    o.dir.setFromTo(o.away_from, o.pos).normalise();
+    o.dir.setFromTo(away_from, o.pos).normalise();
     o.state = flee;
     o.state_name = "fleeing";
   }
@@ -134,9 +138,20 @@ function Unit(pos, owner, subtype)
     // IDLE
     
     // hungry while waiting
-    if(o.energy.getBalance() < typ.EAT_THRESHOLD_IDLE)
+    if(o.energy.getBalance() < typ.COMFORTABLE_ENERGY)
       o.start_harvest();
   }
+  
+  o.stop_harvest = function()
+  {
+    start_goto(o.dest);
+  }
+  
+  o.shouldStopEating = function()
+  {
+    return (!o.arrived && o.energy.getBalance() > Unit.CRITICAL_ENERGY * 2)
+  }
+  
  
   var harvest = function(delta_t)
   {
@@ -151,14 +166,19 @@ function Unit(pos, owner, subtype)
     {
       // try to eat something
       var could_eat = delta_t * typ.EAT_SPEED,
-          can_eat = o.tile.energy.withdraw(could_eat);
+          can_eat = o.tile.energy.withdraw(could_eat),
+          dist2 = o.pos.dist2(o.dest);
       o.energy.deposit(can_eat * typ.ENERGY_PER_FOOD);
       
-      // stop if energy if full
-      if(o.energy.isFull())
+      // continue to target 
+      if(o.shouldStopEating())
+        o.stop_harvest();
+      
+      // eat until energy is full if near target
+      else if(o.energy.isFull())
       {
         // continue towards destination 
-        if(o.pos.dist2(o.dest) > o.radius2)
+        if(dist2 > o.radius2)
           start_goto(o.dest);
         else
           o.start_idle();
@@ -178,7 +198,7 @@ function Unit(pos, owner, subtype)
       o.start_harvest();
     
     // stop to eat if there's food to be had
-    else if(o.tile && o.tile.energy.getBalance() > typ.EAT_THRESHOLD_IDLE)
+    else if(o.tile && o.tile.energy.getBalance() > typ.COMFORTABLE_ENERGY / typ.ENERGY_PER_FOOD)
       o.start_harvest();
     
     // search out something to eat
@@ -195,7 +215,7 @@ function Unit(pos, owner, subtype)
       o.start_idle();
     
     // stop if too hungry
-    else if(o.energy.getBalance() < typ.EAT_THRESHOLD_GOTO)
+    else if(o.energy.getBalance() < typ.CRITICAL_ENERGY)
       o.start_harvest();
     
     // recalculate direction if going the wrong way
@@ -303,7 +323,7 @@ function Unit(pos, owner, subtype)
     }
     
     // draw full part of energy bar
-    if(o.energy.getBalance() >= typ.ENERGY_TO_TRANSFORM)
+    if(o.owner.id == local_player.id && o.energy.getBalance() >= typ.ENERGY_TO_TRANSFORM)  
       context.fillStyle = 'white';
     context.fillRect(o.pos.x - o.hradius, 
                      o.pos.y + o.hradius + 6, 
@@ -318,17 +338,20 @@ function Unit(pos, owner, subtype)
                      o.hradius);
     
     // draw energy bar outline
-    context.strokeStyle = 'black';
+    context.strokeStyle = 'black'
     context.strokeRect(o.pos.x - o.hradius, 
                        o.pos.y + o.hradius + 6, 
                        o.radius, 
                        o.hradius);
     
     // draw the body
-    context.fillStyle = owner.colour;
-    context.strokeStyle = (o.selected) ? 'white' : 'black'
+    context.fillStyle = (o.selected) ? 'white' : owner.colour;
     o.draw_body();
-
+    
+    
+    /*context.font = '20px Monospace';
+    context.strokeStyle = 'orange';
+    context.strokeText(o.state_name, o.pos.x, o.pos.y);*/
   }
   
   o.collidesPoint = function(p)
@@ -378,9 +401,12 @@ function Unit(pos, owner, subtype)
     o.start_transit(1); // arrive through portal
   }
   
-  o.takeDamage = function(amount)
+  o.takeDamage = function(amount, attacker)
   {
-    o.target.withdraw(amount * typ.DAMAGE_FROM_ATTACK);
+    o.energy.withdraw(amount * typ.DAMAGE_FROM_ATTACK);
+    
+    if(!o.fearless || o.energy.getBalance() < typ.CRITICAL_ENERGY)
+      o.start_flee(attacker.pos);
   }
   
   o.getType = function()

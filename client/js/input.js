@@ -70,6 +70,7 @@ var keyboard =
   // other keys
   ENTER 	: 13,
   SPACE 	: 32,
+  SHIFT   : 16,
   
   /* variables */
   // key states
@@ -79,6 +80,7 @@ var keyboard =
   down		: false,
   space		: false,
   enter		: false,
+  shift   : false,
   // abstract direction implied by arrow keys
   direction	: new V2(0, 0),
   // handler function
@@ -104,6 +106,9 @@ var keyboard =
       break;
       case this.ENTER:
         this.enter = state;
+      break;
+      case this.SHIFT:
+        this.shift = state;
       break;
     }
     
